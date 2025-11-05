@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fusion Analysis - CycleScope - Market Cycle Navigator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .layer-toggle {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .layer-toggle:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .layer-content {
+            display: none;
+        }
+        .layer-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="images/cyclescope-logo.svg" alt="CycleScope" style="width: 28px; height: 28px;">
+                <span>CycleScope - Market Cycle Navigator</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="delta.html"><img src="images/delta-icon.svg" alt="Delta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Delta</a></li>
+                <li><a href="gamma.html"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Gamma</a></li>
+                <li><a href="fusion.html" class="active"><img src="images/fusion-icon.svg" alt="Fusion" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Fusion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="page-title">
+                    <img src="images/fusion-icon.svg" alt="Fusion" style="width: 48px; height: 48px;">
+                    <h1>CycleScope Fusion — Market Synthesis</h1>
+                </div>
+                <button class="layer-toggle" onclick="toggleLayer()">
+                    <span id="toggleText">View Layer 2</span>
+                </button>
+            </div>
+            <p class="page-subtitle">Synthesized market view combining Delta and Gamma insights</p>
+            <div class="update-time">
+                <span>📅</span>
+                <span>November 3, 2025</span>
+            </div>
+        </div>
+
+        <!-- LAYER 1 CONTENT -->
+        <div id="layer1" class="layer-content active">
+            <div class="card">
+                <div class="card-content">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.75rem 1.5rem; font-size: 1rem;">
+                            <strong>Phase:</strong> Late Expansion
+                        </span>
+                        <span class="status-badge orange" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+                            <strong>Fragility:</strong> 🟠 Elevated Internal Risk
+                        </span>
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.75rem 1.5rem; font-size: 1rem;">
+                            <strong>Guidance:</strong> Defensive Tilt
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYER 2 CONTENT -->
+        <div id="layer2" class="layer-content">
+            <!-- Header Badges -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-content">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.75rem 1.5rem; font-size: 1rem;">
+                            <strong>Phase:</strong> Late Expansion
+                        </span>
+                        <span class="status-badge orange" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+                            <strong>Fragility:</strong> 🟠 Elevated Internal Risk
+                        </span>
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.75rem 1.5rem; font-size: 1rem;">
+                            <strong>Guidance:</strong> Defensive Tilt
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span>📝</span>
+                    <span>Summary</span>
+                </h2>
+                <div class="section-content">
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        Markets are holding steady on the surface, but internal dynamics are weakening. Growth momentum is flattening while yields and the U.S. dollar stay elevated, sustaining a tight financial backdrop. Inflation's persistence and a firm policy stance limit relief for rate-sensitive assets. Beneath headline resilience, breadth continues to narrow and credit spreads are showing mild stress. Volatility remains calm, yet its curve is flattening, hinting at complacency amid accumulating strain. Leadership remains concentrated in large-cap technology while cyclicals lose traction, underscoring a late-cycle rotation where strength depends on few shoulders. This mix of stability and internal erosion reflects a market in transition toward maturity, where underlying fragility begins to outweigh momentum.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Guidance Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span>🎯</span>
+                    <span>Guidance</span>
+                </h2>
+                <div class="section-content">
+                    <ul class="key-points">
+                        <li>Maintain exposure to quality large caps and defensive sectors.</li>
+                        <li>Trim cyclicals and speculative growth; secure gains in extended names.</li>
+                        <li>Use hedges or modest cash buffers to manage latent volatility risk.</li>
+                        <li>Monitor breadth and credit spreads for signs of a structural shift.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Close Section -->
+            <div class="plain-english">
+                <h3 class="plain-english-title">💡 Close</h3>
+                <p style="font-weight: 600; color: var(--text-primary); font-size: 1.1rem;">
+                    Momentum is thinning — watch participation and credit tone for confirmation of resilience fading.
+                </p>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="index.html" class="btn btn-primary">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        let currentLayer = 1;
+
+        function toggleLayer() {
+            const layer1 = document.getElementById('layer1');
+            const layer2 = document.getElementById('layer2');
+            const toggleText = document.getElementById('toggleText');
+
+            if (currentLayer === 1) {
+                layer1.classList.remove('active');
+                layer2.classList.add('active');
+                toggleText.textContent = 'View Layer 1';
+                currentLayer = 2;
+            } else {
+                layer2.classList.remove('active');
+                layer1.classList.add('active');
+                toggleText.textContent = 'View Layer 2';
+                currentLayer = 1;
+            }
+        }
+    </script>
+</body>
+</html>
+

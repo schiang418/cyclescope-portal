@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleScope - Market Cycle Navigator</title>
+    <link rel="stylesheet" href="css/style.css?v=20251105v2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .layer-toggle {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.9rem;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        .layer-toggle:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .layer-content {
+            display: none;
+        }
+        .layer-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .domain-analysis {
+            border-left: 4px solid;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .domain-analysis.green { border-color: var(--green); }
+        .domain-analysis.yellow { border-color: var(--yellow); }
+        .domain-analysis.red { border-color: var(--red); }
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .two-col-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Loading and Error States */
+        #loadingIndicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        }
+        .error-banner {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        body.loading {
+            cursor: wait;
+        }
+        /* Dynamic badge colors */
+        .status-badge.green {
+            background: #10b981 !important;
+        }
+        .status-badge.yellow {
+            background: #f59e0b !important;
+        }
+        .status-badge.orange {
+            background: #f97316 !important;
+        }
+        .status-badge.red {
+            background: #ef4444 !important;
+        }
+    </style>
+    <!-- API Client Scripts -->
+    <script src="js/api-client.js?v=20251105v2"></script>
+    <script src="js/update-portal.js?v=20251105v2"></script>
+</head>
+<body>
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator">Loading analysis...</div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="images/cyclescope-logo.svg" alt="CycleScope" style="width: 28px; height: 28px;">
+                <span>CycleScope - Market Cycle Navigator</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Dashboard</a></li>
+                <li><a href="delta.html"><img src="images/delta-icon.svg" alt="Delta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Delta</a></li>
+                <li><a href="gamma.html"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Gamma</a></li>
+                <li><a href="fusion.html"><img src="images/fusion-icon.svg" alt="Fusion" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Fusion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Market Status</h1>
+            </div>
+            <p class="page-subtitle">Real-time market cycle positioning and fragility analysis</p>
+
+        </div>
+
+        <!-- FUSION CARD (Full Width Top) -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <img src="images/fusion-icon.svg" alt="Fusion" style="width: 32px; height: 32px;">
+                    <span>Fusion — Market Synthesis</span>
+                </h2>
+                <button class="layer-toggle" onclick="toggleFusion()">
+                    <span id="fusionToggleText">Layer 2 ▼</span>
+                </button>
+            </div>
+
+            <!-- FUSION LAYER 1 -->
+            <div id="fusionLayer1" class="layer-content active">
+                <div class="card-content">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.6rem 1.2rem;">
+                            <strong>Phase:</strong> <span id="fusionPhase">Late Expansion</span>
+                        </span>
+                        <span id="fusionFragilityBadge" class="status-badge orange" style="padding: 0.6rem 1.2rem;">
+                            <strong>Fragility:</strong> 🟠 Elevated Internal Risk
+                        </span>
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.6rem 1.2rem;">
+                            <strong>Guidance:</strong> <span id="fusionGuidance">Loading...</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FUSION LAYER 2 -->
+            <div id="fusionLayer2" class="layer-content">
+                <div class="card-content">
+                    <!-- Cycle Tone -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🎵</span>
+                            <span>Cycle Tone</span>
+                        </h3>
+                        <p id="fusionCycleTone" style="color: var(--text-secondary); line-height: 1.7;">Loading...</p>
+                    </div>
+
+                    <!-- Narrative Summary -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>📝</span>
+                            <span>Summary</span>
+                        </h3>
+                        <p id="fusionNarrative" style="color: var(--text-secondary); line-height: 1.7;">Loading...</p>
+                    </div>
+
+                    <!-- Guidance Section -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🎯</span>
+                            <span>Guidance</span>
+                        </h3>
+                        <ul id="fusionGuidanceBullets" class="key-points">
+                            <li>Loading...</li>
+                        </ul>
+                    </div>
+
+                    <!-- Close Section -->
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--accent-gold);">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--accent-gold);">💡 Close</h4>
+                        <p id="fusionWatch" style="font-weight: 600; color: var(--text-primary); margin: 0;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAMMA (Left) and DELTA (Right) Grid -->
+        <div class="two-col-grid">
+            
+            <!-- GAMMA CARD (Left) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <img src="images/gamma-icon.svg" alt="Gamma" style="width: 32px; height: 32px;">
+                        <span>Gamma — Weekly Cycle</span>
+                    </h2>
+                    <button class="layer-toggle" onclick="toggleGamma()">
+                        <span id="gammaToggleText">Layer 2 ▼</span>
+                    </button>
+                </div>
+
+                <!-- GAMMA LAYER 1 -->
+                <div id="gammaLayer1" class="layer-content active">
+                    <div class="card-content">
+                        <div class="info-row">
+                            <span class="info-label">Week of:</span>
+                            <span id="gammaWeekOf" class="info-value">Loading...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Cycle Stage:</span>
+                            <span id="gammaCycleStage" class="info-value">Loading...</span>
+                        </div>
+                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                            <span class="info-label">Macro Posture:</span>
+                            <span id="gammaPosture" class="info-value" style="font-weight: 700;">Loading...</span>
+                        </div>
+
+                        <!-- Domain Status Table -->
+                        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>📋</span>
+                            <span>Domain Status</span>
+                        </h3>
+                        <table class="data-table" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Domain</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Leadership</strong></td>
+                                    <td id="gammaLeadership">🟢 Strong (narrow)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Breadth</strong></td>
+                                    <td id="gammaBreadth">🟡 Neutral-Improving</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sentiment</strong></td>
+                                    <td id="gammaSentiment">🟡 Elevated (complacent)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Volatility</strong></td>
+                                    <td id="gammaVolatility">🟢 Stable</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Credit/Liquidity</strong></td>
+                                    <td id="gammaCredit">🟡 Supportive</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Macro Trend</strong></td>
+                                    <td id="gammaMacro">🔴 Mixed</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; border-radius: 0.5rem; margin-top: 1rem;">
+                            <p style="font-size: 0.9rem; margin: 0; color: var(--text-secondary);">
+                                <strong>Summary:</strong> Narrow leadership, improving breadth, contained volatility, and stable credit conditions — maintain a cautious, selective stance.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GAMMA LAYER 2 -->
+                <div id="gammaLayer2" class="layer-content">
+                    <div class="card-content" style="max-height: 600px; overflow-y: auto;">
+                        <div class="info-row">
+                            <span class="info-label">Week of:</span>
+                            <span id="gammaWeekLayer2" class="info-value">Loading...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Cycle Stage:</span>
+                            <span id="gammaCycleStageLayer2" class="info-value">Loading...</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phase Confidence:</span>
+                            <span id="gammaPhaseConfidence" class="info-value">Loading...</span>
+                        </div>
+                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                            <span class="info-label">Cycle Tone:</span>
+                            <span id="gammaCycleTone" class="info-value">Loading...</span>
+                        </div>
+
+                        <!-- Overall Summary -->
+                        <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">📊 Overall Summary</h3>
+                        <p id="gammaOverallSummary" style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.5rem;">Loading...</p>
+
+                        <!-- Domain Details -->
+                        <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">🔍 Domain Details</h3>
+                        <div id="gammaDomainDetailsContainer">
+                            <p style="color: var(--text-secondary);">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DELTA CARD (Right) -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <img src="images/delta-icon.svg" alt="Delta" style="width: 32px; height: 32px;">
+                        <span>Delta — Fragility</span>
+                    </h2>
+                    <button class="layer-toggle" onclick="toggleDelta()">
+                        <span id="deltaToggleText">Layer 2 ▼</span>
+                    </button>
+                </div>
+
+                <!-- DELTA LAYER 1 -->
+                <div id="deltaLayer1" class="layer-content active">
+                    <div class="card-content">
+                        <!-- Large Status Badge -->
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <div id="deltaStatusBadge" class="status-badge orange" style="font-size: 1.3rem; padding: 0.8rem 1.5rem;">
+                                <span class="status-emoji" style="font-size: 2rem;">🟠</span>
+                                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                    <span id="deltaFragility">Elevated Internal Risk</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Market Pattern:</span>
+                            <span class="info-value">Late-Stage Strength</span>
+                        </div>
+                        <div class="info-row" style="margin-bottom: 1.5rem;">
+                            <span class="info-label">Posture:</span>
+                            <span class="info-value" style="font-weight: 700; color: var(--orange);">Defensive</span>
+                        </div>
+
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                            Market remains firm but internals are deteriorating — stay defensive until breadth and credit recover.
+                        </p>
+
+                        <!-- Key Drivers -->
+                        <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔑</span>
+                            <span>Key Drivers</span>
+                        </h3>
+                        <ul class="key-points" style="font-size: 0.9rem;">
+                            <li>Breadth rollover under still-firm price</li>
+                            <li>Credit softening</li>
+                            <li>Vol structure flattening</li>
+                        </ul>
+
+                        <!-- Next to Watch -->
+                        <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+                            <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">🔔 Next to Watch</h4>
+                            <p style="font-weight: 600; color: var(--text-primary); margin: 0; font-size: 0.9rem;">VIX : VXV > 0.9 — fear tightening</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELTA LAYER 2 -->
+                <div id="deltaLayer2" class="layer-content">
+                    <div class="card-content" style="max-height: 600px; overflow-y: auto;">
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;">
+                            <span class="status-badge" style="background: var(--bg-hover); padding: 0.4rem 0.8rem; font-size: 0.85rem;">Phase: <span id="deltaPhaseUsed">Loading...</span></span>
+                        </div>
+
+                        <!-- Dimension Stress Table -->
+                        <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">📊 Dimension Stress</h3>
+                        <table class="data-table" style="font-size: 0.8rem; margin-bottom: 1.5rem;">
+                            <thead>
+                                <tr>
+                                    <th>Dimension</th>
+                                    <th style="text-align: center;">Stress</th>
+                                    <th>Commentary</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Breadth</strong></td>
+                                    <td id="deltaBreadthScore" style="text-align: center;">
+                                        <span class="status-badge orange" style="padding: 0.2rem 0.6rem; font-size: 0.9rem; font-weight: 700;">2</span>
+                                    </td>
+                                    <td id="deltaBreadthText">Loading...</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Liquidity</strong></td>
+                                    <td id="deltaLiquidityScore" style="text-align: center;">
+                                        <span class="status-badge yellow" style="padding: 0.2rem 0.6rem; font-size: 0.9rem; font-weight: 700;">1</span>
+                                    </td>
+                                    <td id="deltaLiquidityText">Loading...</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Volatility</strong></td>
+                                    <td id="deltaVolatilityScore" style="text-align: center;">
+                                        <span class="status-badge yellow" style="padding: 0.2rem 0.6rem; font-size: 0.9rem; font-weight: 700;">1</span>
+                                    </td>
+                                    <td id="deltaVolatilityText">Loading...</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Leadership</strong></td>
+                                    <td id="deltaLeadershipScore" style="text-align: center;">
+                                        <span class="status-badge orange" style="padding: 0.2rem 0.6rem; font-size: 0.9rem; font-weight: 700;">2</span>
+                                    </td>
+                                    <td id="deltaLeadershipText">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Rationale -->
+                        <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">📝 Rationale</h3>
+                        <ul id="deltaRationale" class="key-points" style="font-size: 0.85rem; margin-bottom: 1.5rem;">
+                            <li>Loading...</li>
+                        </ul>
+
+                        <!-- Plain-English Summary -->
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem;">💬 Plain-English Summary</h4>
+                            <p id="deltaPlainSummary" style="font-size: 0.85rem; margin: 0;">Loading...</p>
+                        </div>
+
+                        <!-- Next-Step Triggers -->
+                        <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">🎯 Next-Step Triggers</h3>
+                        <table class="data-table" style="font-size: 0.75rem;">
+                            <thead>
+                                <tr>
+                                    <th>Condition</th>
+                                    <th>Effect</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deltaNextTriggers">
+                                <tr>
+                                    <td colspan="2">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Additional Info Section -->
+        <div class="section" style="margin-top: 2rem;">
+            <div class="section-content">
+                <h3 style="margin-bottom: 1rem;">💡 About CycleScope</h3>
+                <p>
+                    CycleScope combines proprietary market fragility analysis with macro cycle positioning to provide institutional-grade market intelligence. Our three-tier analysis framework delivers actionable insights for professional investors.
+                </p>
+                <div class="grid-3" style="margin-top: 1.5rem;">
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;"><img src="images/delta-icon.svg" alt="Delta" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Delta (Daily)</h4>
+                        <p style="font-size: 0.9rem; margin: 0;">
+                            Real-time fragility classification using internal market conditions. Updates daily to track risk regime shifts.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Gamma (Weekly)</h4>
+                        <p style="font-size: 0.9rem; margin: 0;">
+                            Comprehensive macro cycle analysis across six domains. Deep dive into market structure and positioning.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem;"><img src="images/fusion-icon.svg" alt="Fusion" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Fusion</h4>
+                        <p style="font-size: 0.9rem; margin: 0;">
+                            Synthesized market view combining Delta and Gamma insights with actionable guidance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fusion Layer Toggle
+        let fusionLayer = 1;
+        function toggleFusion() {
+            const layer1 = document.getElementById('fusionLayer1');
+            const layer2 = document.getElementById('fusionLayer2');
+            const toggleText = document.getElementById('fusionToggleText');
+
+            if (fusionLayer === 1) {
+                layer1.classList.remove('active');
+                layer2.classList.add('active');
+                toggleText.textContent = 'Layer 1 ▲';
+                fusionLayer = 2;
+            } else {
+                layer2.classList.remove('active');
+                layer1.classList.add('active');
+                toggleText.textContent = 'Layer 2 ▼';
+                fusionLayer = 1;
+            }
+        }
+
+        // Gamma Layer Toggle
+        let gammaLayer = 1;
+        function toggleGamma() {
+            const layer1 = document.getElementById('gammaLayer1');
+            const layer2 = document.getElementById('gammaLayer2');
+            const toggleText = document.getElementById('gammaToggleText');
+
+            if (gammaLayer === 1) {
+                layer1.classList.remove('active');
+                layer2.classList.add('active');
+                toggleText.textContent = 'Layer 1 ▲';
+                gammaLayer = 2;
+            } else {
+                layer2.classList.remove('active');
+                layer1.classList.add('active');
+                toggleText.textContent = 'Layer 2 ▼';
+                gammaLayer = 1;
+            }
+        }
+
+        // Delta Layer Toggle
+        let deltaLayer = 1;
+        function toggleDelta() {
+            const layer1 = document.getElementById('deltaLayer1');
+            const layer2 = document.getElementById('deltaLayer2');
+            const toggleText = document.getElementById('deltaToggleText');
+
+            if (deltaLayer === 1) {
+                layer1.classList.remove('active');
+                layer2.classList.add('active');
+                toggleText.textContent = 'Layer 1 ▲';
+                deltaLayer = 2;
+            } else {
+                layer2.classList.remove('active');
+                layer1.classList.add('active');
+                toggleText.textContent = 'Layer 2 ▼';
+                deltaLayer = 1;
+            }
+        }
+    </script>
+</body>
+</html>
+

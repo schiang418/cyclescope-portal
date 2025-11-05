@@ -1,0 +1,682 @@
+/**
+ * CycleScope Portal Updater
+ * Updates the portal UI with real-time data from the API
+ */
+
+/**
+ * Main function to update the entire portal
+ */
+async function updatePortal() {
+  try {
+    // Show loading state
+    showLoading();
+    
+    // Fetch latest analysis data
+    const data = await fetchLatestAnalysis();
+    
+    if (!data) {
+      showError('No analysis data available. Please try again later.');
+      return;
+    }
+    
+    // Update all sections
+    updateFusionSection(data);
+    updateGammaSection(data);
+    updateDeltaSection(data);
+    
+    // Hide loading state
+    hideLoading();
+    
+    console.log('Portal updated successfully', data);
+    
+  } catch (error) {
+    console.error('Failed to update portal:', error);
+    showError('Failed to load analysis data. Please refresh the page.');
+    hideLoading();
+  }
+}
+
+/**
+ * Update Fusion section with API data
+ * @param {Object} data - Analysis data from API
+ */
+function updateFusionSection(data) {
+  if (!data.fusion) return;
+  
+  let fusion = data.fusion;
+  
+  // Parse fullAnalysis.fusion if it exists
+  if (data.fullAnalysis && data.fullAnalysis.fusion) {
+    try {
+      const fusionText = data.fullAnalysis.fusion;
+      
+      // Extract JSON Layer 1 from the text
+      const jsonMatch = fusionText.match(/JSON Layer 1:\s*({[\s\S]*?})/);
+      if (jsonMatch) {
+        const fusionJson = JSON.parse(jsonMatch[1]);
+        fusion = {
+          ...fusion,
+          asofDate: fusionJson.asof_date,
+          cycleStage: fusionJson.cycle_stage,
+          fragilityColor: fusionJson.fragility_color,
+          fragilityLabel: fusionJson.fragility_label,
+          guidanceLabel: fusionJson.guidance_label,
+          headlineSummary: fusionJson.headline_summary
+        };
+      }
+      
+      // Extract narrative sections
+      const summaryMatch = fusionText.match(/Summary:\s*([\s\S]*?)(?=\nGuidance:|$)/);
+      if (summaryMatch) {
+        fusion.narrativeSummary = summaryMatch[1].trim();
+      }
+      
+      const guidanceMatch = fusionText.match(/Guidance:\s*([\s\S]*?)(?=\nClose:|$)/);
+      if (guidanceMatch) {
+        const bullets = guidanceMatch[1].trim().split('\n').filter(line => line.trim().startsWith('•'));
+        fusion.guidanceBullets = bullets.map(b => b.replace(/^•\s*/, '').trim());
+      }
+      
+      const closeMatch = fusionText.match(/Close:\s*([\s\S]*?)(?=\nJSON Layer 1:|$)/);
+      if (closeMatch) {
+        fusion.watchCommentary = closeMatch[1].trim();
+      }
+    } catch (e) {
+      console.error('Failed to parse fullAnalysis.fusion:', e);
+    }
+  }
+  
+  // Layer 1 Fields
+  
+  // Update As-of Date
+  const dateEl = document.querySelector('#fusionDate');
+  if (dateEl && fusion.asofDate) {
+    dateEl.textContent = formatDate(fusion.asofDate);
+  }
+  
+  // Update Cycle Stage
+  const stageEl = document.querySelector('#fusionCycleStage');
+  if (stageEl) {
+    stageEl.textContent = formatCycleStage(fusion.cycleStage);
+  }
+  
+  // Update Fragility Badge with dynamic color (use Delta's fragility, no emoji)
+  const fragilityBadge = document.querySelector('#fusionFragilityBadge');
+  // Get fragility from Delta (they should match)
+  let fragilityLabel = fusion.fragilityLabel;
+  let fragilityColor = fusion.fragilityColor;
+  
+  if (data.fullAnalysis && data.fullAnalysis.delta) {
+    try {
+      const faDelta = typeof data.fullAnalysis.delta === 'string' ? JSON.parse(data.fullAnalysis.delta) : data.fullAnalysis.delta;
+      if (faDelta.level2) {
+        fragilityLabel = faDelta.level2.fragility_label || fragilityLabel;
+        fragilityColor = faDelta.level2.fragility_color || fragilityColor;
+      }
+    } catch (e) {
+      console.error('Failed to get Delta fragility for Fusion:', e);
+    }
+  }
+  
+  if (fragilityBadge && fragilityColor && fragilityLabel) {
+    const colorClass = getFragilityClass(fragilityColor);
+    fragilityBadge.className = `status-badge ${colorClass}`;
+    fragilityBadge.innerHTML = `<strong>Fragility:</strong> ${fragilityLabel}`;
+  }
+  
+  // Update Guidance Label
+  const guidanceEl = document.querySelector('#fusionGuidance');
+  if (guidanceEl) {
+    guidanceEl.textContent = formatGuidanceLabel(fusion.guidanceLabel);
+  }
+  
+  // Update Headline Summary
+  const summaryEl = document.querySelector('#fusionHeadline');
+  if (summaryEl && fusion.headlineSummary) {
+    summaryEl.textContent = fusion.headlineSummary;
+  }
+  
+  // Layer 2 Fields
+  updateFusionLayer2(fusion, data);
+}
+
+/**
+ * Update Fusion Layer 2 (detailed analysis)
+ * @param {Object} fusion - Fusion data object
+ * @param {Object} data - Full API data object
+ */
+function updateFusionLayer2(fusion, data) {
+  // Cycle Tone (from Gamma)
+  const toneEl = document.querySelector('#fusionCycleTone');
+  let cycleTone = fusion.cycleTone;
+  
+  // Get cycle_tone from Gamma (Fusion synthesizes Gamma + Delta)
+  if (data && data.fullAnalysis && data.fullAnalysis.gamma) {
+    try {
+      const gammaData = typeof data.fullAnalysis.gamma === 'string' ? JSON.parse(data.fullAnalysis.gamma) : data.fullAnalysis.gamma;
+      if (gammaData.level2 && gammaData.level2.cycle_tone) {
+        cycleTone = gammaData.level2.cycle_tone;
+      }
+    } catch (e) {
+      console.error('Failed to get cycle_tone from Gamma:', e);
+    }
+  }
+  
+  if (toneEl && cycleTone) {
+    toneEl.textContent = cycleTone;
+  }
+  
+  // Narrative Summary
+  const narrativeEl = document.querySelector('#fusionNarrative');
+  if (narrativeEl && fusion.narrativeSummary) {
+    narrativeEl.textContent = fusion.narrativeSummary;
+  }
+  
+  // Guidance Bullets
+  const bulletsEl = document.querySelector('#fusionGuidanceBullets');
+  if (bulletsEl && fusion.guidanceBullets && Array.isArray(fusion.guidanceBullets)) {
+    bulletsEl.innerHTML = fusion.guidanceBullets.map(bullet => `<li>${bullet}</li>`).join('');
+  }
+  
+  // Watch Commentary
+  const watchEl = document.querySelector('#fusionWatch');
+  if (watchEl && fusion.watchCommentary) {
+    watchEl.textContent = fusion.watchCommentary;
+  }
+}
+
+/**
+ * Update Gamma section with API data
+ * @param {Object} data - Analysis data from API
+ */
+function updateGammaSection(data) {
+  if (!data.gamma) return;
+  
+  let gamma = data.gamma;
+  
+  // Parse fullAnalysis.gamma if it's a JSON string
+  if (data.fullAnalysis && data.fullAnalysis.gamma) {
+    try {
+      const fullGamma = typeof data.fullAnalysis.gamma === 'string' 
+        ? JSON.parse(data.fullAnalysis.gamma) 
+        : data.fullAnalysis.gamma;
+      
+      // Use level1 data for Layer 1 display
+      if (fullGamma.level1) {
+        gamma = {
+          ...gamma,
+          asofWeek: fullGamma.level1.asof_week,
+          cycleStagePrimary: fullGamma.level1.cycle_stage_primary,
+          cycleStageTransition: fullGamma.level1.cycle_stage_transition,
+          macroPostureLabel: fullGamma.level1.macro_posture_label,
+          headlineSummary: fullGamma.level1.headline_summary,
+          domains: fullGamma.level1.domains,
+          // Layer 2 data
+          phaseConfidence: fullGamma.level2?.phase_confidence,
+          cycleTone: fullGamma.level2?.cycle_tone,
+          overallSummary: fullGamma.level2?.overall_summary,
+          domainDetails: fullGamma.level2?.domain_details
+        };
+      }
+    } catch (e) {
+      console.error('Failed to parse fullAnalysis.gamma:', e);
+    }
+  }
+  
+  // Layer 1 Fields
+  
+  // Update As-of Week
+  const weekEl = document.querySelector('#gammaWeekOf');
+  if (weekEl && gamma.asofWeek) {
+    weekEl.textContent = formatWeekOf(gamma.asofWeek);
+  }
+  
+  // Update Cycle Stage (combined primary + transition)
+  const cycleStageEl = document.querySelector('#gammaCycleStage');
+  if (cycleStageEl) {
+    let stageText = gamma.cycleStagePrimary || '';
+    if (gamma.cycleStageTransition) {
+      stageText += ` → ${gamma.cycleStageTransition}`;
+    }
+    cycleStageEl.textContent = stageText || 'N/A';
+  }
+  
+  // Update Cycle Stage Primary (if separate element exists)
+  const stageEl = document.querySelector('#gammaCycleStagePrimary');
+  if (stageEl && gamma.cycleStagePrimary) {
+    stageEl.textContent = gamma.cycleStagePrimary;
+  }
+  
+  // Update Cycle Stage Transition (if separate element exists)
+  const transitionEl = document.querySelector('#gammaCycleStageTransition');
+  if (transitionEl && gamma.cycleStageTransition) {
+    transitionEl.textContent = gamma.cycleStageTransition;
+  }
+  
+  // Update Macro Posture (Layer 1)
+  const postureEl = document.querySelector('#gammaPosture');
+  if (postureEl) {
+    const posture = gamma.macroPostureLabel || 'N/A';
+    postureEl.textContent = posture;
+    // Set color based on posture
+    if (posture.toLowerCase().includes('caution')) {
+      postureEl.style.color = 'var(--orange)';
+    } else if (posture.toLowerCase().includes('defensive')) {
+      postureEl.style.color = 'var(--red)';
+    } else if (posture.toLowerCase().includes('bullish') || posture.toLowerCase().includes('aggressive')) {
+      postureEl.style.color = 'var(--green)';
+    } else {
+      postureEl.style.color = 'var(--text-primary)';
+    }
+  }
+  
+  // Update Macro Posture Label (if separate element exists)
+  const postureEl2 = document.querySelector('#gammaMacroPosture');
+  if (postureEl2 && gamma.macroPostureLabel) {
+    postureEl2.textContent = gamma.macroPostureLabel;
+  }
+  
+  // Update Headline Summary
+  const summaryEl = document.querySelector('#gammaHeadline');
+  if (summaryEl && gamma.headlineSummary) {
+    summaryEl.textContent = gamma.headlineSummary;
+  }
+  
+  // Update Domains (6 domains with dynamic colors)
+  if (gamma.domains && Array.isArray(gamma.domains)) {
+    updateGammaDomains(gamma.domains);
+  }
+  
+  // Layer 2 Fields
+  updateGammaLayer2(gamma);
+}
+
+/**
+ * Update Gamma domains with dynamic colors
+ * @param {Array} domains - Array of domain objects
+ */
+function updateGammaDomains(domains) {
+  // Map domain names to element IDs
+  const domainMap = {
+    'Leadership': 'gammaLeadership',
+    'Breadth': 'gammaBreadth',
+    'Sentiment': 'gammaSentiment',
+    'Volatility': 'gammaVolatility',
+    'Credit / Liquidity': 'gammaCredit',  // API uses "Credit / Liquidity"
+    'Macro Trend': 'gammaMacro'  // API uses "Macro Trend"
+  };
+  
+  domains.forEach(domain => {
+    const elementId = domainMap[domain.domain_name];
+    const el = document.querySelector(`#${elementId}`);
+    
+    if (el) {
+      const colorClass = getDomainClass(domain.color_code);
+      const biasLabel = domain.bias_label || '';
+      
+      // Display only bias_label, no emoji, no strength_label
+      // Background color comes from color_code via colorClass
+      el.textContent = biasLabel;
+      el.className = `status-badge ${colorClass}`;
+    }
+  });
+}
+
+/**
+ * Update Gamma Layer 2 (detailed analysis)
+ * @param {Object} gamma - Gamma data object
+ */
+function updateGammaLayer2(gamma) {
+  // Week of (same as Layer 1)
+  const weekLayer2El = document.querySelector('#gammaWeekLayer2');
+  if (weekLayer2El && gamma.asofWeek) {
+    weekLayer2El.textContent = formatDate(gamma.asofWeek);
+  }
+  
+  // Cycle Stage (same as Layer 1)
+  const cycleStageLayer2El = document.querySelector('#gammaCycleStageLayer2');
+  if (cycleStageLayer2El) {
+    let stageText = gamma.cycleStagePrimary || 'N/A';
+    if (gamma.cycleStageTransition) {
+      stageText += ` → ${gamma.cycleStageTransition}`;
+    }
+    cycleStageLayer2El.textContent = stageText;
+  }
+  
+  // Phase Confidence
+  const phaseConfEl = document.querySelector('#gammaPhaseConfidence');
+  if (phaseConfEl && gamma.phaseConfidence) {
+    phaseConfEl.textContent = gamma.phaseConfidence;
+  }
+  
+  // Cycle Tone
+  const toneEl = document.querySelector('#gammaCycleTone');
+  if (toneEl && gamma.cycleTone) {
+    toneEl.textContent = gamma.cycleTone;
+  }
+  
+  // Overall Summary
+  const summaryEl = document.querySelector('#gammaOverallSummary');
+  if (summaryEl && gamma.overallSummary) {
+    summaryEl.textContent = gamma.overallSummary;
+  }
+  
+  // Domain Details
+  if (gamma.domainDetails && Array.isArray(gamma.domainDetails)) {
+    updateGammaDomainDetails(gamma.domainDetails);
+  }
+}
+
+/**
+ * Update Gamma domain details in Layer 2
+ * @param {Array} domainDetails - Array of detailed domain objects
+ */
+function updateGammaDomainDetails(domainDetails) {
+  const container = document.querySelector('#gammaDomainDetailsContainer');
+  if (!container) return;
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  // Create detail sections for each domain
+  domainDetails.forEach(detail => {
+    const section = document.createElement('div');
+    section.className = 'domain-detail-section';
+    section.innerHTML = `
+      <h4>${detail.domain_name}</h4>
+      <p><strong>Summary:</strong> ${detail.summary || 'N/A'}</p>
+      <p><strong>Observations:</strong> ${detail.observations || 'N/A'}</p>
+      <p><strong>Interpretation:</strong> ${detail.interpretation || 'N/A'}</p>
+    `;
+    container.appendChild(section);
+  });
+}
+
+/**
+ * Update Delta section with API data
+ * @param {Object} data - Analysis data from API
+ */
+function updateDeltaSection(data) {
+  if (!data.delta) return;
+  
+  let delta = { ...data.delta };
+  
+  // Parse fullAnalysis.delta if available
+  if (data.fullAnalysis && data.fullAnalysis.delta) {
+    try {
+      const faDeltaText = data.fullAnalysis.delta;
+      let faDelta;
+      
+      if (typeof faDeltaText === 'string') {
+        faDelta = JSON.parse(faDeltaText);
+      } else {
+        faDelta = faDeltaText;
+      }
+      
+      // Extract Level 2 data
+      if (faDelta.level2) {
+        const level2 = faDelta.level2;
+        
+        // Map snake_case to camelCase
+        delta.asofDate = level2.asof_date || delta.asofDate;
+        delta.phaseUsed = level2.phase_used || delta.phaseUsed;
+        delta.phaseConfidence = level2.phase_confidence || delta.phaseConfidence;
+        delta.fragilityColor = level2.fragility_color || delta.fragilityColor;
+        delta.fragilityLabel = level2.fragility_label || delta.fragilityLabel;
+        delta.fragilityScore = level2.fragility_score || delta.fragilityScore;
+        
+        // Extract dimension commentary
+        if (level2.dimension_commentary) {
+          delta.breadthText = level2.dimension_commentary.breadth_text;
+          delta.liquidityText = level2.dimension_commentary.liquidity_text;
+          delta.volatilityText = level2.dimension_commentary.volatility_text;
+          delta.leadershipText = level2.dimension_commentary.leadership_text;
+        }
+        
+        // Extract rationale and summary
+        delta.rationaleBullets = level2.rationale_bullets;
+        delta.plainEnglishSummary = level2.plain_english_summary;
+        delta.nextTriggersDetail = level2.next_triggers_detail;
+      }
+    } catch (e) {
+      console.error('Failed to parse fullAnalysis.delta:', e);
+    }
+  }
+  
+  // Layer 1 Fields
+  
+  // Update As-of Date
+  const dateEl = document.querySelector('#deltaDate');
+  if (dateEl && delta.asofDate) {
+    dateEl.textContent = formatDate(delta.asofDate);
+  }
+  
+  // Update Fragility Badge with dynamic color (no emoji)
+  const fragilityBadge = document.querySelector('#deltaFragilityBadge');
+  if (fragilityBadge && delta.fragilityColor && delta.fragilityLabel) {
+    const colorClass = getFragilityClass(delta.fragilityColor);
+    fragilityBadge.className = `status-badge ${colorClass}`;
+    fragilityBadge.textContent = delta.fragilityLabel;
+  }
+  
+  // Update Fragility Score with dynamic color
+  const scoreEl = document.querySelector('#deltaFragilityScore');
+  if (scoreEl && delta.fragilityScore !== undefined) {
+    const score = delta.fragilityScore;
+    let scoreColorClass = 'green';
+    if (score >= 6) scoreColorClass = 'red';
+    else if (score >= 3) scoreColorClass = 'yellow';
+    
+    scoreEl.innerHTML = `<span class="status-badge ${scoreColorClass}">${score} / 8</span>`;
+  }
+  
+  // Update Template Code and Name
+  const templateEl = document.querySelector('#deltaTemplate');
+  if (templateEl && delta.templateCode && delta.templateName) {
+    templateEl.textContent = `${delta.templateCode} - ${delta.templateName}`;
+  }
+  
+  // Update Pattern Plain
+  const patternEl = document.querySelector('#deltaPattern');
+  if (patternEl && delta.patternPlain) {
+    patternEl.textContent = delta.patternPlain;
+  }
+  
+  // Update Posture
+  const postureEl = document.querySelector('#deltaPosture');
+  if (postureEl && delta.postureLabel) {
+    postureEl.textContent = delta.postureLabel;
+  }
+  
+  // Update Headline Summary
+  const summaryEl = document.querySelector('#deltaHeadline');
+  if (summaryEl && delta.headlineSummary) {
+    summaryEl.textContent = delta.headlineSummary;
+  }
+  
+  // Update Key Drivers
+  const driversEl = document.querySelector('#deltaKeyDrivers');
+  if (driversEl && delta.keyDrivers && Array.isArray(delta.keyDrivers)) {
+    driversEl.innerHTML = delta.keyDrivers.map(driver => `<li>${driver}</li>`).join('');
+  }
+  
+  // Update Next Watch
+  const watchEl = document.querySelector('#deltaNextWatch');
+  if (watchEl && delta.nextWatchDisplay) {
+    watchEl.textContent = typeof delta.nextWatchDisplay === 'string' 
+      ? delta.nextWatchDisplay 
+      : JSON.stringify(delta.nextWatchDisplay);
+  }
+  
+  // Layer 2 Fields
+  updateDeltaLayer2(delta);
+}
+
+/**
+ * Update Delta Layer 2 (detailed analysis)
+ * @param {Object} delta - Delta data object
+ */
+function updateDeltaLayer2(delta) {
+  // Phase Used
+  const phaseEl = document.querySelector('#deltaPhaseUsed');
+  if (phaseEl && delta.phaseUsed) {
+    phaseEl.textContent = delta.phaseUsed;
+  }
+  
+  // Phase Confidence removed (only Gamma shows confidence)
+  
+  // Stress Scores with dynamic colors
+  updateDeltaStressScores(delta);
+  
+  // Stress Score Explanations
+  const breadthTextEl = document.querySelector('#deltaBreadthText');
+  if (breadthTextEl && delta.breadthText) {
+    breadthTextEl.textContent = delta.breadthText;
+  }
+  
+  const liquidityTextEl = document.querySelector('#deltaLiquidityText');
+  if (liquidityTextEl && delta.liquidityText) {
+    liquidityTextEl.textContent = delta.liquidityText;
+  }
+  
+  const volatilityTextEl = document.querySelector('#deltaVolatilityText');
+  if (volatilityTextEl && delta.volatilityText) {
+    volatilityTextEl.textContent = delta.volatilityText;
+  }
+  
+  const leadershipTextEl = document.querySelector('#deltaLeadershipText');
+  if (leadershipTextEl && delta.leadershipText) {
+    leadershipTextEl.textContent = delta.leadershipText;
+  }
+  
+  // Rationale Bullets
+  const rationaleEl = document.querySelector('#deltaRationale');
+  if (rationaleEl && delta.rationaleBullets && Array.isArray(delta.rationaleBullets)) {
+    rationaleEl.innerHTML = delta.rationaleBullets.map(bullet => `<li>${bullet}</li>`).join('');
+  }
+  
+  // Plain English Summary
+  const plainSummaryEl = document.querySelector('#deltaPlainSummary');
+  if (plainSummaryEl && delta.plainEnglishSummary) {
+    plainSummaryEl.textContent = delta.plainEnglishSummary;
+  }
+  
+  // Next Triggers Detail (display as table)
+  const triggersEl = document.querySelector('#deltaNextTriggers');
+  if (triggersEl && delta.nextTriggersDetail && Array.isArray(delta.nextTriggersDetail)) {
+    // Filter out empty triggers (entries with missing or placeholder values)
+    const validTriggers = delta.nextTriggersDetail.filter(trigger => {
+      const condition = trigger.condition || trigger.CONDITION || '';
+      const effect = trigger.effect || trigger.EFFECT || '';
+      // Skip if both are empty, or if they contain placeholder text
+      return condition && effect && 
+             condition !== 'N/A' && effect !== 'N/A' &&
+             condition !== 'CONDITION' && effect !== 'EFFECT';
+    });
+
+    // Only render table rows if we have valid triggers
+    if (validTriggers.length > 0) {
+      const rowsHTML = validTriggers.map(trigger => {
+        const condition = trigger.condition || trigger.CONDITION;
+        const effect = trigger.effect || trigger.EFFECT;
+        return `
+          <tr>
+            <td><strong>${condition}</strong></td>
+            <td>${effect}</td>
+          </tr>
+        `;
+      }).join('');
+      triggersEl.innerHTML = rowsHTML;
+    } else {
+      triggersEl.innerHTML = '<tr><td colspan="2" style="color: var(--text-secondary); font-size: 0.9rem; text-align: center;">No triggers available</td></tr>';
+    }
+  }
+}
+
+/**
+ * Update Delta stress scores with dynamic colors
+ * @param {Object} delta - Delta data object
+ */
+function updateDeltaStressScores(delta) {
+  const scores = [
+    { key: 'breadth', id: 'deltaBreadthScore' },
+    { key: 'liquidity', id: 'deltaLiquidityScore' },
+    { key: 'volatility', id: 'deltaVolatilityScore' },
+    { key: 'leadership', id: 'deltaLeadershipScore' }
+  ];
+  
+  scores.forEach(score => {
+    const el = document.querySelector(`#${score.id}`);
+    if (el && delta[score.key] !== undefined && delta[score.key] !== null) {
+      const value = delta[score.key];
+      const emoji = getStressEmoji(value);
+      let colorClass = 'green';
+      if (value === 2) colorClass = 'orange';
+      else if (value === 1) colorClass = 'yellow';
+      
+      el.innerHTML = `<span class="stress-circle ${colorClass}">${value}</span>`;
+    }
+  });
+}
+
+/**
+ * Show loading state
+ */
+function showLoading() {
+  const loadingEl = document.querySelector('#loadingIndicator');
+  if (loadingEl) {
+    loadingEl.style.display = 'block';
+  }
+  
+  // Add loading class to body
+  document.body.classList.add('loading');
+}
+
+/**
+ * Hide loading state
+ */
+function hideLoading() {
+  const loadingEl = document.querySelector('#loadingIndicator');
+  if (loadingEl) {
+    loadingEl.style.display = 'none';
+  }
+  
+  // Remove loading class from body
+  document.body.classList.remove('loading');
+}
+
+/**
+ * Show error message
+ * @param {string} message - Error message to display
+ */
+function showError(message) {
+  // Check if error banner already exists
+  let errorBanner = document.querySelector('#errorBanner');
+  
+  if (!errorBanner) {
+    errorBanner = document.createElement('div');
+    errorBanner.id = 'errorBanner';
+    errorBanner.className = 'error-banner';
+    document.body.prepend(errorBanner);
+  }
+  
+  errorBanner.textContent = message;
+  errorBanner.style.display = 'block';
+  
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    errorBanner.style.display = 'none';
+  }, 5000);
+}
+
+/**
+ * Initialize portal on page load
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('CycleScope Portal initializing...');
+  updatePortal();
+  
+  // Auto-refresh every 5 minutes (optional)
+  // setInterval(updatePortal, 5 * 60 * 1000);
+});
+

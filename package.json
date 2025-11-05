@@ -1,0 +1,24 @@
+{
+  "name": "cyclescope-portal",
+  "version": "1.0.0",
+  "description": "CycleScope Market Cycle Navigator - Premium market intelligence portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "cyclescope",
+    "market-analysis",
+    "financial-intelligence"
+  ],
+  "author": "CycleScope",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
