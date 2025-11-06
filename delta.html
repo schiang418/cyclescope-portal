@@ -46,8 +46,8 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">Dashboard</a></li>
-                <li><a href="delta.html" class="active"><img src="images/delta-icon.svg" alt="Delta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Delta</a></li>
                 <li><a href="gamma.html"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Gamma</a></li>
+                <li><a href="delta.html" class="active"><img src="images/delta-icon.svg" alt="Delta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Delta</a></li>
                 <li><a href="fusion.html"><img src="images/fusion-icon.svg" alt="Fusion" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Fusion</a></li>
             </ul>
         </div>
@@ -60,7 +60,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="page-title">
                     <img src="images/delta-icon.svg" alt="Delta" style="width: 48px; height: 48px;">
-                    <h1>Delta — Summary Panel</h1>
+                    <h1>Delta — Fragility</h1>
                 </div>
                 <button class="layer-toggle" onclick="toggleLayer()">
                     <span id="toggleText">View Layer 2</span>
@@ -102,7 +102,7 @@
                     </p>
 
                     <!-- Key Drivers Section -->
-                    <div style="margin-bottom: 2rem;">
+                    <div class="key-drivers" style="margin-bottom: 2rem;">
                         <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">🔑 Key Drivers</h3>
                         <ul class="key-points">
                             <li>Breadth rollover under still-firm price</li>
@@ -112,7 +112,7 @@
                     </div>
 
                     <!-- Next to Watch -->
-                    <div style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                    <div class="next-watch" style="border-top: 1px solid var(--border); padding-top: 1.5rem;">
                         <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">🔔 Next to Watch</h3>
                         <p style="font-weight: 600; color: var(--text-primary);">VIX : VXV > 0.9 — fear tightening</p>
                     </div>
@@ -126,13 +126,14 @@
             <div class="card" style="margin-bottom: 2rem;">
                 <div class="card-content">
                     <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
-                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.5rem 1rem;">Phase: Late Expansion</span>
-                        <span class="status-badge" style="background: var(--accent-blue); padding: 0.5rem 1rem;">Confidence: High</span>
-                        <span class="status-badge orange" style="padding: 0.5rem 1rem;">Fragility Score: 6 / 8</span>
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.5rem 1rem;">Phase: <span id="deltaPhaseUsed">Late Expansion</span></span>
+                        <span class="status-badge" style="background: var(--bg-hover); padding: 0.5rem 1rem;">Template: <span id="deltaTemplateName">Loading...</span></span>
+                        <span class="status-badge" style="background: var(--accent-blue); padding: 0.5rem 1rem;">Confidence: <span id="deltaConfidence">High</span></span>
+                        <span class="status-badge orange" style="padding: 0.5rem 1rem;">Fragility Score: <span id="deltaFragilityScore">6 / 8</span></span>
                     </div>
 
                     <p style="font-size: 1.1rem; margin-bottom: 0;">
-                        <strong>Current Fragility:</strong> <span style="color: var(--orange); font-weight: 700;">ORANGE — Elevated Internal Risk</span>
+                        <strong>Current Fragility:</strong> <span id="deltaCurrentFragility" style="color: var(--orange); font-weight: 700;">ORANGE — Elevated Internal Risk</span>
                     </p>
                 </div>
             </div>
@@ -190,7 +191,7 @@
             </div>
 
             <!-- Rationale -->
-            <div class="section">
+            <div class="section rationale">
                 <h2 class="section-title">
                     <span>📝</span>
                     <span>Rationale</span>
@@ -259,6 +260,7 @@
         </div>
     </div>
 
+    <script src="js/delta-page.js"></script>
     <script>
         let currentLayer = 1;
 
@@ -272,13 +274,13 @@
                 layer1.classList.remove('active');
                 layer2.classList.add('active');
                 toggleText.textContent = 'View Layer 1';
-                pageTitle.textContent = 'Delta — Full Analysis';
+                pageTitle.textContent = 'Delta — Fragility (Layer 2)';
                 currentLayer = 2;
             } else {
                 layer2.classList.remove('active');
                 layer1.classList.add('active');
                 toggleText.textContent = 'View Layer 2';
-                pageTitle.textContent = 'Delta — Summary Panel';
+                pageTitle.textContent = 'Delta — Fragility';
                 currentLayer = 1;
             }
         }
