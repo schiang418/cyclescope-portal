@@ -343,6 +343,15 @@
                 // Access delta fields directly (not nested)
                 const score = snapshot.deltaFragilityScore || snapshot.delta?.fragilityScore || 0;
                 const color = snapshot.deltaFragilityColor || snapshot.delta?.fragilityColor || 'GREEN';
+                
+                // Debug logging
+                console.log('Fragility snapshot:', {
+                    date: snapshot.date,
+                    deltaFragilityScore: snapshot.deltaFragilityScore,
+                    nestedScore: snapshot.delta?.fragilityScore,
+                    finalScore: score,
+                    bottomPercent: (score / 8) * 100
+                });
                 const emoji = getFragilityEmoji(color);
                 const date = snapshot.date || snapshot.createdAt;
                 
