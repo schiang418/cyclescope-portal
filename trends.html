@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trend Analysis - CycleScope</title>
+    <link rel="stylesheet" href="css/style.css?v=20251107">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Trend Analysis Specific Styles */
+        .trend-chart {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .trend-chart h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        /* Gamma Domain Trends - Heatmap Style */
+        .domain-heatmap {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+        
+        .domain-row {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .domain-row:last-child {
+            border-bottom: none;
+        }
+        
+        .domain-label {
+            width: 120px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+        
+        .domain-circles {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+        }
+        
+        .circle-emoji {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .circle-emoji:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Fragility Trend Chart */
+        .fragility-chart-container {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+        }
+        
+        .y-axis {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 40px;
+            height: 300px;
+            padding: 12px 0;
+        }
+        
+        .y-axis-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-align: right;
+            padding-right: 0.5rem;
+        }
+        
+        .chart-area {
+            flex: 1;
+            height: 300px;
+            border-left: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            position: relative;
+        }
+        
+        .grid-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border-color);
+            opacity: 0.3;
+        }
+        
+        .data-points {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 0.5rem;
+        }
+        
+        .data-point-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .data-point {
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: absolute;
+        }
+        
+        .data-point:hover {
+            transform: scale(1.3);
+        }
+        
+        .x-axis-label {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* No Data State */
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation (matching index.html) -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="images/cyclescope-logo.svg" alt="CycleScope" style="width: 28px; height: 28px;">
+                <span>CycleScope - Market Cycle Navigator</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="trends.html" class="active">📊 Trends</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Trend Analysis</h1>
+            <p class="page-subtitle">Historical trends for Gamma domains and Delta fragility</p>
+        </div>
+
+        <!-- Gamma 6 Domain Trends -->
+        <div class="trend-chart">
+            <h2>Gamma 6 Domain Trends (Last 30 Days)</h2>
+            <div id="gammaTrendsContainer" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading historical data...</p>
+            </div>
+        </div>
+
+        <!-- Fragility Trend -->
+        <div class="trend-chart">
+            <h2>Fragility Trend (Last 30 Days)</h2>
+            <div id="fragilityTrendContainer" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading historical data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Client -->
+    <script src="js/api-client.js"></script>
+    
+    <!-- Trend Analysis Script -->
+    <script>
+        // Domain names in order
+        const DOMAIN_NAMES = ['Credit', 'Liquidity', 'Macro', 'Leadership', 'Breadth', 'Sentiment'];
+        
+        /**
+         * Load and display trend analysis
+         */
+        async function loadTrendAnalysis() {
+            try {
+                // Fetch 30 days of historical data
+                const history = await fetchHistoricalAnalysis(30);
+                
+                if (!history || history.length === 0) {
+                    showNoData();
+                    return;
+                }
+                
+                // Filter to only show snapshots with actual data (not future dates)
+                const validHistory = history.filter(snapshot => {
+                    // Check if snapshot has valid gamma domains data
+                    const hasGammaData = snapshot.gamma && 
+                                        snapshot.gamma.domains && 
+                                        Array.isArray(snapshot.gamma.domains) && 
+                                        snapshot.gamma.domains.length > 0;
+                    
+                    // Check if snapshot has valid delta data
+                    const hasDeltaData = snapshot.delta && 
+                                        snapshot.delta.fragilityScore !== null && 
+                                        snapshot.delta.fragilityScore !== undefined;
+                    
+                    // Include snapshot only if it has either valid gamma or delta data
+                    return hasGammaData || hasDeltaData;
+                });
+                
+                if (validHistory.length === 0) {
+                    showNoData();
+                    return;
+                }
+                
+                console.log(`Displaying ${validHistory.length} days of historical data`);
+                
+                // Render Gamma Domain Trends
+                renderGammaDomainTrends(validHistory);
+                
+                // Render Fragility Trend
+                renderFragilityTrend(validHistory);
+                
+            } catch (error) {
+                console.error('Failed to load trend analysis:', error);
+                showError();
+            }
+        }
+        
+        /**
+         * Render Gamma Domain Trends heatmap
+         */
+        function renderGammaDomainTrends(history) {
+            const container = document.getElementById('gammaTrendsContainer');
+            
+            // Build heatmap HTML
+            let html = '<div class="domain-heatmap">';
+            
+            DOMAIN_NAMES.forEach(domainName => {
+                html += `<div class="domain-row">`;
+                html += `<div class="domain-label">${domainName}</div>`;
+                html += `<div class="domain-circles">`;
+                
+                // Extract color codes for this domain across all dates
+                history.forEach(snapshot => {
+                    // Access gammaDomains from the correct field
+                    const domains = snapshot.gamma?.domains || snapshot.gammaDomains;
+                    
+                    if (!domains || !Array.isArray(domains)) {
+                        console.warn('No domains found in snapshot:', snapshot);
+                        html += `<span class="circle-emoji" title="No data">⚪</span>`;
+                        return;
+                    }
+                    
+                    // Find the domain in this snapshot
+                    const domain = domains.find(d => 
+                        d.domain_name === domainName ||
+                        d.domain_name === `${domainName} / Liquidity` ||
+                        d.domain_name.includes(domainName)
+                    );
+                    
+                    const colorCode = domain?.color_code || '⚪';
+                    const date = snapshot.date || snapshot.createdAt;
+                    
+                    html += `<span class="circle-emoji" title="${date}: ${domainName}">${colorCode}</span>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+        
+        /**
+         * Render Fragility Trend chart
+         */
+        function renderFragilityTrend(history) {
+            const container = document.getElementById('fragilityTrendContainer');
+            
+            // Build chart HTML
+            let html = '<div class="fragility-chart-container">';
+            
+            // Y-axis (0-8)
+            html += '<div class="y-axis">';
+            for (let score = 8; score >= 0; score -= 2) {
+                html += `<div class="y-axis-label">${score}</div>`;
+            }
+            html += '</div>';
+            
+            // Chart area
+            html += '<div class="chart-area">';
+            
+            // Grid lines
+            for (let score = 0; score <= 8; score += 2) {
+                const bottomPercent = (score / 8) * 100;
+                html += `<div class="grid-line" style="bottom: ${bottomPercent}%"></div>`;
+            }
+            
+            // Data points
+            html += '<div class="data-points">';
+            
+            history.forEach(snapshot => {
+                // Access delta fields directly (not nested)
+                const score = snapshot.deltaFragilityScore || snapshot.delta?.fragilityScore || 0;
+                const color = snapshot.deltaFragilityColor || snapshot.delta?.fragilityColor || 'GREEN';
+                const emoji = getFragilityEmoji(color);
+                const date = snapshot.date || snapshot.createdAt;
+                
+                // Calculate vertical position (0-8 scale)
+                const bottomPercent = (score / 8) * 100;
+                
+                html += `<div class="data-point-container">`;
+                html += `<div class="data-point" style="bottom: ${bottomPercent}%" title="${date}: Score ${score}/8">${emoji}</div>`;
+                html += `</div>`;
+            });
+            
+            html += '</div>'; // data-points
+            html += '</div>'; // chart-area
+            html += '</div>'; // fragility-chart-container
+            
+            // X-axis label
+            html += '<div class="x-axis-label">Time (Oldest → Newest)</div>';
+            
+            container.innerHTML = html;
+        }
+        
+        /**
+         * Show no data message
+         */
+        function showNoData() {
+            document.getElementById('gammaTrendsContainer').innerHTML = 
+                '<div class="no-data">No historical data available</div>';
+            document.getElementById('fragilityTrendContainer').innerHTML = 
+                '<div class="no-data">No historical data available</div>';
+        }
+        
+        /**
+         * Show error message
+         */
+        function showError() {
+            const errorHtml = '<div class="no-data">Failed to load data. Please try again later.</div>';
+            document.getElementById('gammaTrendsContainer').innerHTML = errorHtml;
+            document.getElementById('fragilityTrendContainer').innerHTML = errorHtml;
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadTrendAnalysis);
+    </script>
+</body>
+</html>
+

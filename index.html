@@ -115,9 +115,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">Dashboard</a></li>
-                <li><a href="gamma.html"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Gamma</a></li>
-                <li><a href="delta.html"><img src="images/delta-icon.svg" alt="Delta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Delta</a></li>
-                <li><a href="fusion.html"><img src="images/fusion-icon.svg" alt="Fusion" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 4px;">Fusion</a></li>
+                <li><a href="trends.html">📊 Trends</a></li>
             </ul>
         </div>
     </nav>
@@ -130,6 +128,7 @@
                 <h1>Market Status</h1>
             </div>
             <p class="page-subtitle">Real-time market cycle positioning and fragility analysis</p>
+            <p id="lastUpdated" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Last Updated: Loading...</p>
 
         </div>
 
@@ -211,7 +210,7 @@
                 <div class="card-header">
                     <h2 class="card-title">
                         <img src="images/gamma-icon.svg" alt="Gamma" style="width: 32px; height: 32px;">
-                        <span>Gamma — Weekly Cycle</span>
+                        <span>Gamma — Macro View</span>
                     </h2>
                     <button class="layer-toggle" onclick="toggleGamma()">
                         <span id="gammaToggleText">Layer 2 ▼</span>
@@ -221,10 +220,6 @@
                 <!-- GAMMA LAYER 1 -->
                 <div id="gammaLayer1" class="layer-content active">
                     <div class="card-content">
-                        <div class="info-row">
-                            <span class="info-label">Week of:</span>
-                            <span id="gammaWeekOf" class="info-value">Loading...</span>
-                        </div>
                         <div class="info-row">
                             <span class="info-label">Cycle Stage:</span>
                             <span id="gammaCycleStage" class="info-value">Loading...</span>
@@ -377,6 +372,7 @@
                     <div class="card-content" style="max-height: 600px; overflow-y: auto;">
                         <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;">
                             <span class="status-badge" style="background: var(--bg-hover); padding: 0.4rem 0.8rem; font-size: 0.85rem;">Phase: <span id="deltaPhaseUsed">Loading...</span></span>
+                            <span class="status-badge" style="background: var(--bg-hover); padding: 0.4rem 0.8rem; font-size: 0.85rem;">Template: <span id="deltaTemplateName">Loading...</span></span>
                         </div>
 
                         <!-- Dimension Stress Table -->
@@ -420,6 +416,9 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: -0.75rem; margin-bottom: 1.5rem; font-style: italic;">
+                            Stress Level: 2-High 1-Med 0-Low
+                        </p>
 
                         <!-- Rationale -->
                         <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem;">📝 Rationale</h3>
@@ -463,15 +462,15 @@
                 </p>
                 <div class="grid-3" style="margin-top: 1.5rem;">
                     <div>
-                        <h4 style="margin-bottom: 0.5rem;"><img src="images/delta-icon.svg" alt="Delta" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Delta (Daily)</h4>
+                        <h4 style="margin-bottom: 0.5rem;"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Gamma</h4>
                         <p style="font-size: 0.9rem; margin: 0;">
-                            Real-time fragility classification using internal market conditions. Updates daily to track risk regime shifts.
+                            Comprehensive macro cycle analysis across six domains. Deep dive into market structure and positioning.
                         </p>
                     </div>
                     <div>
-                        <h4 style="margin-bottom: 0.5rem;"><img src="images/gamma-icon.svg" alt="Gamma" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Gamma (Weekly)</h4>
+                        <h4 style="margin-bottom: 0.5rem;"><img src="images/delta-icon.svg" alt="Delta" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;">Delta</h4>
                         <p style="font-size: 0.9rem; margin: 0;">
-                            Comprehensive macro cycle analysis across six domains. Deep dive into market structure and positioning.
+                            Real-time fragility classification using internal market conditions. Updates daily to track risk regime shifts.
                         </p>
                     </div>
                     <div>
