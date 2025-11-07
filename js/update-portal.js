@@ -53,38 +53,27 @@ function updateFusionSection(data) {
   // Parse fullAnalysis.fusion if it exists
   if (data.fullAnalysis && data.fullAnalysis.fusion) {
     try {
-      const fusionText = data.fullAnalysis.fusion;
+      const fusionData = data.fullAnalysis.fusion;
       
-      // Extract JSON Layer 1 from the text
-      const jsonMatch = fusionText.match(/JSON Layer 1:\s*({[\s\S]*?})/);
-      if (jsonMatch) {
-        const fusionJson = JSON.parse(jsonMatch[1]);
+      // Use layer1 and layer2 objects directly
+      if (fusionData.layer1) {
         fusion = {
           ...fusion,
-          asofDate: fusionJson.asof_date,
-          cycleStage: fusionJson.cycle_stage,
-          fragilityColor: fusionJson.fragility_color,
-          fragilityLabel: fusionJson.fragility_label,
-          guidanceLabel: fusionJson.guidance_label,
-          headlineSummary: fusionJson.headline_summary
+          asofDate: fusionData.layer1.asof_date,
+          cycleStage: fusionData.layer1.cycle_stage,
+          fragilityColor: fusionData.layer1.fragility_color,
+          fragilityLabel: fusionData.layer1.fragility_label,
+          guidanceLabel: fusionData.layer1.guidance_label,
+          headlineSummary: fusionData.layer1.headline_summary
         };
       }
       
-      // Extract narrative sections
-      const summaryMatch = fusionText.match(/Summary:\s*([\s\S]*?)(?=\nGuidance:|$)/);
-      if (summaryMatch) {
-        fusion.narrativeSummary = summaryMatch[1].trim();
-      }
-      
-      const guidanceMatch = fusionText.match(/Guidance:\s*([\s\S]*?)(?=\nClose:|$)/);
-      if (guidanceMatch) {
-        const bullets = guidanceMatch[1].trim().split('\n').filter(line => line.trim().startsWith('•'));
-        fusion.guidanceBullets = bullets.map(b => b.replace(/^•\s*/, '').trim());
-      }
-      
-      const closeMatch = fusionText.match(/Close:\s*([\s\S]*?)(?=\nJSON Layer 1:|$)/);
-      if (closeMatch) {
-        fusion.watchCommentary = closeMatch[1].trim();
+      // Extract Layer 2 data
+      if (fusionData.layer2) {
+        fusion.cycleTone = fusionData.layer2.cycle_tone;
+        fusion.narrativeSummary = fusionData.layer2.narrative_summary;
+        fusion.guidanceBullets = fusionData.layer2.guidance_bullets;
+        fusion.watchCommentary = fusionData.layer2.watch_commentary;
       }
     } catch (e) {
       console.error('Failed to parse fullAnalysis.fusion:', e);
@@ -99,10 +88,16 @@ function updateFusionSection(data) {
     dateEl.textContent = formatDate(fusion.asofDate);
   }
   
-  // Update Cycle Stage
+  // Update Cycle Stage (fusionCycleStage for Layer 2, fusionPhase for Layer 1)
   const stageEl = document.querySelector('#fusionCycleStage');
-  if (stageEl) {
+  if (stageEl && fusion.cycleStage) {
     stageEl.textContent = formatCycleStage(fusion.cycleStage);
+  }
+  
+  // Update Phase (Layer 1)
+  const phaseEl = document.querySelector('#fusionPhase');
+  if (phaseEl && fusion.cycleStage) {
+    phaseEl.textContent = fusion.cycleStage;
   }
   
   // Update Fragility Badge with dynamic color (use Delta's fragility, no emoji)
@@ -517,9 +512,17 @@ function updateDeltaSection(data) {
   // Update Next Watch
   const watchEl = document.querySelector('#deltaNextWatch');
   if (watchEl && delta.nextWatchDisplay) {
-    watchEl.textContent = typeof delta.nextWatchDisplay === 'string' 
-      ? delta.nextWatchDisplay 
-      : JSON.stringify(delta.nextWatchDisplay);
+    if (typeof delta.nextWatchDisplay === 'string') {
+      watchEl.textContent = delta.nextWatchDisplay;
+    } else if (typeof delta.nextWatchDisplay === 'object') {
+      // Format: "Signal: Condition — Meaning"
+      const signal = delta.nextWatchDisplay.signal || '';
+      const condition = delta.nextWatchDisplay.condition || '';
+      const meaning = delta.nextWatchDisplay.meaning || '';
+      watchEl.textContent = `${signal}: ${condition} — ${meaning}`;
+    } else {
+      watchEl.textContent = String(delta.nextWatchDisplay);
+    }
   }
   
   // Layer 2 Fields
