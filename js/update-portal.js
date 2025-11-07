@@ -457,7 +457,9 @@ function updateDeltaSection(data) {
   if (statusBadge && fragilityText && delta.fragilityColor && delta.fragilityLabel) {
     const colorClass = getFragilityClass(delta.fragilityColor);
     statusBadge.className = `status-badge ${colorClass}`;
-    fragilityText.textContent = delta.fragilityLabel;
+    // Add fragility score next to label (e.g., "Caution Warranted (3/8)")
+    const scoreText = delta.fragilityScore !== undefined ? ` (${delta.fragilityScore}/8)` : '';
+    fragilityText.textContent = delta.fragilityLabel + scoreText;
   }
   
   // Update Fragility Badge with dynamic color (no emoji)
