@@ -465,7 +465,9 @@ function updateDeltaSection(data) {
   if (fragilityBadge && delta.fragilityColor && delta.fragilityLabel) {
     const colorClass = getFragilityClass(delta.fragilityColor);
     fragilityBadge.className = `status-badge ${colorClass}`;
-    fragilityBadge.textContent = delta.fragilityLabel;
+    // Add fragility score next to label (e.g., "Elevated Internal Risk (5/8)")
+    const scoreText = delta.fragilityScore !== undefined ? ` (${delta.fragilityScore}/8)` : '';
+    fragilityBadge.textContent = delta.fragilityLabel + scoreText;
   }
   
   // Update Fragility Score with dynamic color
