@@ -56,9 +56,18 @@
         }
         
         .circle-emoji {
-            font-size: 1.5rem;
+            font-size: 1.5rem; /* Default: 24px for 30 days */
             cursor: pointer;
             transition: transform 0.2s;
+        }
+        
+        /* Responsive circle sizes based on data count */
+        .circle-emoji.size-60 {
+            font-size: 1rem; /* 16px for 60 days */
+        }
+        
+        .circle-emoji.size-90 {
+            font-size: 0.75rem; /* 12px for 90 days */
         }
         
         .circle-emoji:hover {
@@ -120,10 +129,19 @@
         }
         
         .data-point {
-            font-size: 1.25rem;
+            font-size: 1.25rem; /* Default: 20px for 30 days */
             cursor: pointer;
             transition: transform 0.2s;
             position: absolute;
+        }
+        
+        /* Responsive sizes for Fragility chart */
+        .data-point.size-60 {
+            font-size: 0.875rem; /* 14px for 60 days */
+        }
+        
+        .data-point.size-90 {
+            font-size: 0.625rem; /* 10px for 90 days */
         }
         
         .data-point:hover {
@@ -186,24 +204,39 @@
         <div class="page-header">
             <h1>Trend Analysis</h1>
             <p class="page-subtitle">Historical trends for Gamma domains and Delta fragility</p>
+            
+            <!-- Time Range Buttons -->
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <button class="time-range-btn" data-days="30" style="background: var(--accent); color: white; border: 2px solid white; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+                    30-Day Data
+                </button>
+                <button class="time-range-btn" data-days="60" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+                    60-Day Data
+                </button>
+                <button class="time-range-btn" data-days="90" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+                    90-Day Data
+                </button>
+            </div>
         </div>
 
         <!-- Gamma 6 Domain Trends -->
         <div class="trend-chart">
-            <h2>Gamma 6 Domain Trends (Last 30 Days)</h2>
+            <h2 id="gammaTrendsTitle">Gamma 6 Domain Trends</h2>
             <div id="gammaTrendsContainer" class="loading">
                 <div class="loading-spinner"></div>
                 <p>Loading historical data...</p>
             </div>
+            <div id="gammaLatestDate" style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;"></div>
         </div>
 
         <!-- Fragility Trend -->
         <div class="trend-chart">
-            <h2>Fragility Trend (Last 30 Days)</h2>
+            <h2 id="fragilityTrendTitle">Fragility Trend</h2>
             <div id="fragilityTrendContainer" class="loading">
                 <div class="loading-spinner"></div>
                 <p>Loading historical data...</p>
             </div>
+            <div id="fragilityLatestDate" style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;"></div>
         </div>
     </div>
 
@@ -212,16 +245,26 @@
     
     <!-- Trend Analysis Script -->
     <script>
-        // Domain names in order
-        const DOMAIN_NAMES = ['Credit', 'Liquidity', 'Macro', 'Leadership', 'Breadth', 'Sentiment'];
+        // Domain names in order (matching Dashboard Gamma Layer 1)
+        const DOMAIN_NAMES = ['Leadership', 'Breadth', 'Sentiment', 'Volatility', 'Credit', 'Macro'];
+        
+        // Current selected time range
+        let currentDays = 30;
         
         /**
          * Load and display trend analysis
+         * @param {number} days - Number of days to fetch (30, 60, or 90)
          */
-        async function loadTrendAnalysis() {
+        async function loadTrendAnalysis(days = 30) {
             try {
-                // Fetch 30 days of historical data
-                const history = await fetchHistoricalAnalysis(30);
+                currentDays = days;
+                
+                // Update chart titles
+                document.getElementById('gammaTrendsTitle').textContent = `Gamma 6 Domain Trends (Last ${days} Days)`;
+                document.getElementById('fragilityTrendTitle').textContent = `Fragility Trend (Last ${days} Days)`;
+                
+                // Fetch historical data
+                const history = await fetchHistoricalAnalysis(days);
                 
                 if (!history || history.length === 0) {
                     showNoData();
@@ -299,7 +342,12 @@
                     const colorCode = domain?.color_code || '⚪';
                     const date = snapshot.date || snapshot.createdAt;
                     
-                    html += `<span class="circle-emoji" title="${date}: ${domainName}">${colorCode}</span>`;
+                    // Add size class based on current time range
+                    let sizeClass = '';
+                    if (currentDays === 60) sizeClass = 'size-60';
+                    else if (currentDays === 90) sizeClass = 'size-90';
+                    
+                    html += `<span class="circle-emoji ${sizeClass}" title="${date}: ${domainName}">${colorCode}</span>`;
                 });
                 
                 html += `</div></div>`;
@@ -308,6 +356,21 @@
             html += '</div>';
             
             container.innerHTML = html;
+            
+            // Display latest date for Gamma chart
+            if (history.length > 0) {
+                const latestSnapshot = history[history.length - 1];
+                const latestDate = latestSnapshot.date || latestSnapshot.createdAt;
+                const dateDisplay = document.getElementById('gammaLatestDate');
+                if (dateDisplay && latestDate) {
+                    const formattedDate = new Date(latestDate).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    dateDisplay.textContent = `Latest: ${formattedDate}`;
+                }
+            }
         }
         
         /**
@@ -357,8 +420,13 @@
                 // Calculate vertical position (0-8 scale)
                 const bottomPercent = (score / 8) * 100;
                 
+                // Add size class based on current time range
+                let sizeClass = '';
+                if (currentDays === 60) sizeClass = 'size-60';
+                else if (currentDays === 90) sizeClass = 'size-90';
+                
                 html += `<div class="data-point-container">`;
-                html += `<div class="data-point" style="bottom: ${bottomPercent}%" title="${date}: Score ${score}/8">${emoji}</div>`;
+                html += `<div class="data-point ${sizeClass}" style="bottom: ${bottomPercent}%" title="${date}: Score ${score}/8">${emoji}</div>`;
                 html += `</div>`;
             });
             
@@ -366,10 +434,22 @@
             html += '</div>'; // chart-area
             html += '</div>'; // fragility-chart-container
             
-            // X-axis label
-            html += '<div class="x-axis-label">Time (Oldest → Newest)</div>';
-            
             container.innerHTML = html;
+            
+            // Display latest date for Fragility chart
+            if (history.length > 0) {
+                const latestSnapshot = history[history.length - 1];
+                const latestDate = latestSnapshot.date || latestSnapshot.createdAt;
+                const dateDisplay = document.getElementById('fragilityLatestDate');
+                if (dateDisplay && latestDate) {
+                    const formattedDate = new Date(latestDate).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    dateDisplay.textContent = `Latest: ${formattedDate}`;
+                }
+            }
         }
         
         /**
@@ -391,8 +471,60 @@
             document.getElementById('fragilityTrendContainer').innerHTML = errorHtml;
         }
         
+        /**
+         * Update button states
+         */
+        function updateButtonStates(selectedDays) {
+            document.querySelectorAll('.time-range-btn').forEach(btn => {
+                const days = parseInt(btn.getAttribute('data-days'));
+                if (days === selectedDays) {
+                    // Active button - use white border for visibility
+                    btn.style.background = 'var(--accent)';
+                    btn.style.color = 'white';
+                    btn.style.border = '2px solid white';
+                } else {
+                    // Inactive button - keep 1px border
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--text-secondary)';
+                    btn.style.border = '1px solid var(--border)';
+                }
+            });
+        }
+        
         // Load data on page load
-        document.addEventListener('DOMContentLoaded', loadTrendAnalysis);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTrendAnalysis(30);
+            
+            // Add click handlers for all time range buttons
+            document.querySelectorAll('.time-range-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const days = parseInt(btn.getAttribute('data-days'));
+                    
+                    // Update button states
+                    updateButtonStates(days);
+                    
+                    // Show loading state
+                    const originalText = btn.textContent;
+                    btn.disabled = true;
+                    btn.textContent = '⏳ Loading...';
+                    
+                    // Disable all buttons during loading
+                    document.querySelectorAll('.time-range-btn').forEach(b => b.disabled = true);
+                    
+                    try {
+                        // Load data with selected time range
+                        await loadTrendAnalysis(days);
+                    } finally {
+                        // Reset button states
+                        document.querySelectorAll('.time-range-btn').forEach(b => {
+                            b.disabled = false;
+                            const btnDays = parseInt(b.getAttribute('data-days'));
+                            b.textContent = `${btnDays}-Day Data`;
+                        });
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

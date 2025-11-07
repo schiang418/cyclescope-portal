@@ -85,7 +85,7 @@ p {
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--accent-gold);
+  color: #3B82F6;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -220,7 +220,7 @@ p {
 
 .status-badge.yellow {
   background: var(--yellow);
-  color: #1a1a1a;
+  color: white;
 }
 
 .status-badge.orange {
@@ -234,7 +234,7 @@ p {
 }
 
 .status-badge.neutral {
-  background: #6b7280;
+  background: var(--text-muted);
   color: white;
 }
 
@@ -262,11 +262,17 @@ p {
 
 .stress-circle.green {
   background: var(--green);
+  color: white;
+}
+
+.stress-circle.yellow {
+  background: var(--yellow);
+  color: white;
 }
 
 .stress-circle.orange {
   background: var(--orange);
-  color: #1a1a1a;
+  color: white;
 }
 
 /* Override inline styles for stress score badges in initial HTML */
@@ -293,6 +299,7 @@ td[id$="Score"] .status-badge {
 
 .stress-circle.orange {
   background: var(--orange);
+  color: white;
 }
 
 .status-emoji {
@@ -586,6 +593,20 @@ td[id$="Score"] .status-badge {
 @keyframes loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* Logo Animation - Combined Brightness + Glow */
+.logo-pulse {
+  animation: logoPulseCombined 3.5s ease-in-out infinite;
+}
+
+@keyframes logoPulseCombined {
+  0%, 100% { 
+    filter: brightness(0.8) drop-shadow(0 0 2px rgba(59, 130, 246, 0.3));
+  }
+  50% { 
+    filter: brightness(1.2) drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+  }
 }
 
 /* Utility Classes */

@@ -24,6 +24,11 @@ async function updatePortal() {
     updateGammaSection(data);
     updateDeltaSection(data);
     
+    // Update last updated time
+    if (data.updatedAt) {
+      updateLastUpdatedTime(data.updatedAt);
+    }
+    
     // Hide loading state
     hideLoading();
     
@@ -302,8 +307,8 @@ function updateGammaDomains(domains) {
     'Breadth': 'gammaBreadth',
     'Sentiment': 'gammaSentiment',
     'Volatility': 'gammaVolatility',
-    'Credit / Liquidity': 'gammaCredit',  // API uses "Credit / Liquidity"
-    'Macro Trend': 'gammaMacro'  // API uses "Macro Trend"
+    'Credit': 'gammaCredit',  // API uses "Credit"
+    'Macro': 'gammaMacro'  // API uses "Macro"
   };
   
   domains.forEach(domain => {
@@ -451,6 +456,15 @@ function updateDeltaSection(data) {
     dateEl.textContent = formatDate(delta.asofDate);
   }
   
+  // Update Delta Status Badge (Layer 1 large badge)
+  const statusBadge = document.querySelector('#deltaStatusBadge');
+  const fragilityText = document.querySelector('#deltaFragility');
+  if (statusBadge && fragilityText && delta.fragilityColor && delta.fragilityLabel) {
+    const colorClass = getFragilityClass(delta.fragilityColor);
+    statusBadge.className = `status-badge ${colorClass}`;
+    fragilityText.textContent = delta.fragilityLabel;
+  }
+  
   // Update Fragility Badge with dynamic color (no emoji)
   const fragilityBadge = document.querySelector('#deltaFragilityBadge');
   if (fragilityBadge && delta.fragilityColor && delta.fragilityLabel) {
@@ -521,6 +535,12 @@ function updateDeltaLayer2(delta) {
   const phaseEl = document.querySelector('#deltaPhaseUsed');
   if (phaseEl && delta.phaseUsed) {
     phaseEl.textContent = delta.phaseUsed;
+  }
+  
+  // Template Name (Layer 2)
+  const templateNameEl = document.querySelector('#deltaTemplateName');
+  if (templateNameEl && delta.templateCode && delta.templateName) {
+    templateNameEl.textContent = `${delta.templateCode} - ${delta.templateName}`;
   }
   
   // Phase Confidence removed (only Gamma shows confidence)
@@ -643,6 +663,35 @@ function hideLoading() {
   
   // Remove loading class from body
   document.body.classList.remove('loading');
+}
+
+/**
+ * Update last updated time display
+ * @param {string} updatedAt - ISO 8601 timestamp
+ */
+function updateLastUpdatedTime(updatedAt) {
+  const lastUpdatedEl = document.querySelector('#lastUpdated');
+  if (!lastUpdatedEl) return;
+  
+  try {
+    const date = new Date(updatedAt);
+    const dateStr = date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      timeZone: 'America/New_York'
+    });
+    const timeStr = date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      timeZone: 'America/New_York',
+      timeZoneName: 'short'
+    });
+    lastUpdatedEl.textContent = `Last Updated: ${dateStr} at ${timeStr}`;
+  } catch (error) {
+    console.error('Failed to format updatedAt:', error);
+    lastUpdatedEl.textContent = 'Last Updated: Unknown';
+  }
 }
 
 /**

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CycleScope - Market Cycle Navigator</title>
-    <link rel="stylesheet" href="css/style.css?v=20251105v2">
+    <link rel="stylesheet" href="css/style.css?v=20251107v9">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -84,23 +84,31 @@
         body.loading {
             cursor: wait;
         }
-        /* Dynamic badge colors */
+        /* Dynamic badge colors - using CSS variables */
         .status-badge.green {
-            background: #10b981 !important;
+            background: var(--green) !important;
+            color: white !important;
         }
         .status-badge.yellow {
-            background: #f59e0b !important;
+            background: var(--yellow) !important;
+            color: white !important;
         }
         .status-badge.orange {
-            background: #f97316 !important;
+            background: var(--orange) !important;
+            color: white !important;
         }
         .status-badge.red {
-            background: #ef4444 !important;
+            background: var(--red) !important;
+            color: white !important;
+        }
+        .status-badge.neutral {
+            background: var(--text-muted) !important;
+            color: white !important;
         }
     </style>
     <!-- API Client Scripts -->
-    <script src="js/api-client.js?v=20251105v2"></script>
-    <script src="js/update-portal.js?v=20251105v2"></script>
+    <script src="js/api-client.js?v=20251107v3"></script>
+    <script src="js/update-portal.js?v=20251107v6"></script>
 </head>
 <body>
     <!-- Loading Indicator -->
@@ -110,7 +118,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <img src="images/cyclescope-logo.svg" alt="CycleScope" style="width: 28px; height: 28px;">
+                <img src="images/cyclescope-logo.svg" alt="CycleScope" class="logo-pulse" style="width: 28px; height: 28px;">
                 <span>CycleScope - Market Cycle Navigator</span>
             </a>
             <ul class="nav-links">
@@ -259,11 +267,11 @@
                                     <td id="gammaVolatility">🟢 Stable</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Credit/Liquidity</strong></td>
+                                    <td><strong>Credit</strong></td>
                                     <td id="gammaCredit">🟡 Supportive</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Macro Trend</strong></td>
+                                    <td><strong>Macro</strong></td>
                                     <td id="gammaMacro">🔴 Mixed</td>
                                 </tr>
                             </tbody>
@@ -280,10 +288,6 @@
                 <!-- GAMMA LAYER 2 -->
                 <div id="gammaLayer2" class="layer-content">
                     <div class="card-content" style="max-height: 600px; overflow-y: auto;">
-                        <div class="info-row">
-                            <span class="info-label">Week of:</span>
-                            <span id="gammaWeekLayer2" class="info-value">Loading...</span>
-                        </div>
                         <div class="info-row">
                             <span class="info-label">Cycle Stage:</span>
                             <span id="gammaCycleStageLayer2" class="info-value">Loading...</span>
@@ -327,11 +331,8 @@
                     <div class="card-content">
                         <!-- Large Status Badge -->
                         <div style="text-align: center; margin-bottom: 1.5rem;">
-                            <div id="deltaStatusBadge" class="status-badge orange" style="font-size: 1.3rem; padding: 0.8rem 1.5rem;">
-                                <span class="status-emoji" style="font-size: 2rem;">🟠</span>
-                                <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                    <span id="deltaFragility">Elevated Internal Risk</span>
-                                </div>
+                            <div id="deltaStatusBadge" class="status-badge orange" style="padding: 0.6rem 1.2rem;">
+                                <span id="deltaFragility">Elevated Internal Risk</span>
                             </div>
                         </div>
 

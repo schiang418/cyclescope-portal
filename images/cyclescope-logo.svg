@@ -22,19 +22,29 @@
     </linearGradient>
   </defs>
   
-  <!-- Innermost ring -->
-  <circle cx="24" cy="24" r="8" stroke="url(#ring1)" stroke-width="1.5" fill="none"/>
+  <!-- Innermost ring with pulsating animation -->
+  <circle cx="24" cy="24" r="8" stroke="url(#ring1)" stroke-width="1.5" fill="none">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="4s" repeatCount="indefinite"/>
+  </circle>
   
-  <!-- Second ring -->
-  <circle cx="24" cy="24" r="12" stroke="url(#ring2)" stroke-width="1.5" fill="none"/>
+  <!-- Second ring with pulsating animation (delayed) -->
+  <circle cx="24" cy="24" r="12" stroke="url(#ring2)" stroke-width="1.5" fill="none">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" begin="0.2s" repeatCount="indefinite"/>
+  </circle>
   
-  <!-- Third ring -->
-  <circle cx="24" cy="24" r="16" stroke="url(#ring3)" stroke-width="1.5" fill="none"/>
+  <!-- Third ring with pulsating animation (delayed) -->
+  <circle cx="24" cy="24" r="16" stroke="url(#ring3)" stroke-width="1.5" fill="none">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" begin="0.4s" repeatCount="indefinite"/>
+  </circle>
   
-  <!-- Fourth ring -->
-  <circle cx="24" cy="24" r="20" stroke="url(#ring4)" stroke-width="1.5" fill="none"/>
+  <!-- Fourth ring with pulsating animation (delayed) -->
+  <circle cx="24" cy="24" r="20" stroke="url(#ring4)" stroke-width="1.5" fill="none">
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="4s" begin="0.6s" repeatCount="indefinite"/>
+  </circle>
   
-  <!-- Outermost ring -->
-  <circle cx="24" cy="24" r="23" stroke="url(#ring5)" stroke-width="1.5" fill="none"/>
+  <!-- Outermost ring with pulsating animation (delayed) -->
+  <circle cx="24" cy="24" r="23" stroke="url(#ring5)" stroke-width="1.5" fill="none">
+    <animate attributeName="opacity" values="0.8;1;0.8" dur="4s" begin="0.8s" repeatCount="indefinite"/>
+  </circle>
 </svg>
 

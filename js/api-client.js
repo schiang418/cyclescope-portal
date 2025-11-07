@@ -128,6 +128,9 @@ function getDomainEmoji(colorCode) {
  * @returns {string} CSS class name
  */
 function getDomainClass(colorCode) {
+  // Normalize emoji by removing variation selectors
+  const normalized = colorCode?.replace(/\uFE0F/g, '').trim();
+  
   const map = {
     '🟢': 'green',
     '🟡': 'yellow',
@@ -135,7 +138,7 @@ function getDomainClass(colorCode) {
     '🔴': 'red',
     '⚪': 'neutral'  // White circle = neutral/gray
   };
-  return map[colorCode] || 'yellow';
+  return map[normalized] || 'neutral';  // Default to neutral instead of yellow
 }
 
 /**
