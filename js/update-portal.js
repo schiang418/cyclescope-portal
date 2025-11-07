@@ -302,8 +302,8 @@ function updateGammaDomains(domains) {
     'Breadth': 'gammaBreadth',
     'Sentiment': 'gammaSentiment',
     'Volatility': 'gammaVolatility',
-    'Credit': 'gammaCredit',  // API uses "Credit"
-    'Macro': 'gammaMacro'  // API uses "Macro"
+    'Credit / Liquidity': 'gammaCredit',  // API uses "Credit / Liquidity"
+    'Macro Trend': 'gammaMacro'  // API uses "Macro Trend"
   };
   
   domains.forEach(domain => {
