@@ -22,16 +22,6 @@ async function fetchLatestAnalysis() {
 function updateGammaLayer1(gamma) {
     if (!gamma) return;
     
-    // Update week of date
-    const weekOfEl = document.querySelector('#gammaWeekOf');
-    if (weekOfEl && gamma.asofWeek) {
-        weekOfEl.textContent = new Date(gamma.asofWeek).toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
-    }
-    
     // Update cycle stage
     const cycleStageEl = document.querySelector('#gammaCycleStage');
     if (cycleStageEl && gamma.cycleStagePrimary) {
@@ -50,6 +40,39 @@ function updateGammaLayer1(gamma) {
             'Risk-Off': 'var(--red)'
         };
         postureEl.style.color = postureColors[gamma.macroPostureLabel] || 'var(--text-primary)';
+    }
+    
+    // Update domain status table
+    const tableBody = document.querySelector('#gammaDomainTable');
+    if (tableBody && gamma.domainDetails) {
+        const rows = tableBody.querySelectorAll('tr');
+        
+        // Map domain keys to row indices
+        const domainMapping = [
+            { key: 'leadership', row: 0 },
+            { key: 'breadth', row: 1 },
+            { key: 'sentiment', row: 2 },
+            { key: 'volatility', row: 3 },
+            { key: 'credit_liquidity', row: 4 },
+            { key: 'macro_trend', row: 5 }
+        ];
+        
+        domainMapping.forEach(({ key, row }) => {
+            const domain = gamma.domainDetails[key];
+            if (domain && rows[row]) {
+                const statusCell = rows[row].querySelector('td:last-child');
+                if (statusCell) {
+                    // Use key_takeaway as the status summary
+                    statusCell.textContent = domain.key_takeaway || domain.analysis || 'N/A';
+                }
+            }
+        });
+    }
+    
+    // Update overall summary
+    const summaryEl = document.querySelector('.gamma-overall-summary');
+    if (summaryEl && gamma.overallSummary) {
+        summaryEl.textContent = gamma.overallSummary;
     }
 }
 
