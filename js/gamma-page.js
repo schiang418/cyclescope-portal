@@ -24,8 +24,8 @@ function updateGammaLayer1(gamma) {
     
     // Update week of date
     const weekOfEl = document.querySelector('#gammaWeekOf');
-    if (weekOfEl && gamma.asOfDate) {
-        weekOfEl.textContent = new Date(gamma.asOfDate).toLocaleDateString('en-US', {
+    if (weekOfEl && gamma.asofWeek) {
+        weekOfEl.textContent = new Date(gamma.asofWeek).toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
             year: 'numeric'
@@ -34,14 +34,14 @@ function updateGammaLayer1(gamma) {
     
     // Update cycle stage
     const cycleStageEl = document.querySelector('#gammaCycleStage');
-    if (cycleStageEl && gamma.cycleStage) {
-        cycleStageEl.textContent = gamma.cycleStage;
+    if (cycleStageEl && gamma.cycleStagePrimary) {
+        cycleStageEl.textContent = gamma.cycleStagePrimary;
     }
     
     // Update macro posture
     const postureEl = document.querySelector('#gammaMacroPosture');
-    if (postureEl && gamma.macroPosture) {
-        postureEl.textContent = gamma.macroPosture;
+    if (postureEl && gamma.macroPostureLabel) {
+        postureEl.textContent = gamma.macroPostureLabel;
         // Update color based on posture
         const postureColors = {
             'Bullish': 'var(--green)',
@@ -49,7 +49,7 @@ function updateGammaLayer1(gamma) {
             'Defensive': 'var(--orange)',
             'Risk-Off': 'var(--red)'
         };
-        postureEl.style.color = postureColors[gamma.macroPosture] || 'var(--text-primary)';
+        postureEl.style.color = postureColors[gamma.macroPostureLabel] || 'var(--text-primary)';
     }
 }
 

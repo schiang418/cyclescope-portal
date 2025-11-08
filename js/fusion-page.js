@@ -37,8 +37,8 @@ function updateFusionLayer1(fusion, delta) {
     
     // Update guidance
     const guidanceEl = document.querySelector('#fusionGuidance');
-    if (guidanceEl && fusion.guidance) {
-        guidanceEl.textContent = fusion.guidance;
+    if (guidanceEl && fusion.guidanceLabel) {
+        guidanceEl.textContent = fusion.guidanceLabel;
     }
 }
 
@@ -47,22 +47,28 @@ function updateFusionLayer2(fusion) {
     
     // Update summary
     const summaryEl = document.querySelector('.fusion-summary');
-    if (summaryEl && fusion.summary) {
-        summaryEl.textContent = fusion.summary;
+    if (summaryEl && fusion.narrativeSummary) {
+        summaryEl.textContent = fusion.narrativeSummary;
     }
     
     // Update guidance list
     const guidanceListEl = document.querySelector('.fusion-guidance-list');
-    if (guidanceListEl && fusion.guidancePoints && Array.isArray(fusion.guidancePoints)) {
-        guidanceListEl.innerHTML = fusion.guidancePoints
-            .map(point => `<li>${point}</li>`)
-            .join('');
+    if (guidanceListEl && fusion.guidanceBullets) {
+        // Parse JSON array if it's a string
+        const guidancePoints = typeof fusion.guidanceBullets === 'string'
+            ? JSON.parse(fusion.guidanceBullets)
+            : fusion.guidanceBullets;
+        if (Array.isArray(guidancePoints)) {
+            guidanceListEl.innerHTML = guidancePoints
+                .map(point => `<li>${point}</li>`)
+                .join('');
+        }
     }
     
     // Update close message
     const closeEl = document.querySelector('.fusion-close');
-    if (closeEl && fusion.close) {
-        closeEl.textContent = fusion.close;
+    if (closeEl && fusion.watchCommentary) {
+        closeEl.textContent = fusion.watchCommentary;
     }
 }
 

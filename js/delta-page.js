@@ -79,76 +79,88 @@ function populateDeltaLayer1(data) {
 
 // Populate Delta Layer 2 content
 function populateDeltaLayer2(data) {
-    if (!data || !data.fullAnalysis || !data.fullAnalysis.delta || !data.fullAnalysis.delta.level2) {
-        console.error('No delta level2 data available');
+    if (!data || !data.delta) {
+        console.error('No delta data available');
         return;
     }
 
-    const level2 = data.fullAnalysis.delta.level2;
+    const delta = data.delta;
 
     // Update Phase badge
     const phaseBadge = document.querySelector('#deltaPhaseUsed');
-    if (phaseBadge && level2.phaseUsed) {
-        phaseBadge.textContent = level2.phaseUsed;
+    if (phaseBadge && delta.phaseUsed) {
+        phaseBadge.textContent = delta.phaseUsed;
     }
 
     // Update Template Name badge
     const templateBadge = document.querySelector('#deltaTemplateName');
-    if (templateBadge && level2.templateName) {
-        templateBadge.textContent = level2.templateName;
+    if (templateBadge && delta.templateName) {
+        templateBadge.textContent = delta.templateName;
     }
 
     // Update Confidence badge
     const confidenceBadge = document.querySelector('#deltaConfidence');
-    if (confidenceBadge && level2.confidence) {
-        confidenceBadge.textContent = level2.confidence;
+    if (confidenceBadge && delta.phaseConfidence) {
+        confidenceBadge.textContent = delta.phaseConfidence;
     }
 
     // Update Fragility Score badge
     const fragilityScoreBadge = document.querySelector('#deltaFragilityScore');
-    if (fragilityScoreBadge && level2.fragilityScore !== undefined) {
-        fragilityScoreBadge.textContent = `${level2.fragilityScore} / 8`;
+    if (fragilityScoreBadge && delta.fragilityScore !== undefined) {
+        fragilityScoreBadge.textContent = `${delta.fragilityScore} / 8`;
     }
 
     // Update Current Fragility
     const currentFragility = document.querySelector('#deltaCurrentFragility');
-    if (currentFragility && level2.fragilityColor && level2.fragilityLabel) {
-        currentFragility.innerHTML = `${level2.fragilityColor.toUpperCase()} — ${level2.fragilityLabel}`;
-        currentFragility.style.color = getFragilityColorCode(level2.fragilityColor);
+    if (currentFragility && delta.fragilityColor && delta.fragilityLabel) {
+        currentFragility.innerHTML = `${delta.fragilityColor.toUpperCase()} — ${delta.fragilityLabel}`;
+        currentFragility.style.color = getFragilityColorCode(delta.fragilityColor);
     }
 
     // Update Dimension Stress table
-    if (level2.dimensions && level2.dimensions.length > 0) {
-        const tbody = document.querySelector('#layer2 .data-table tbody');
-        if (tbody) {
-            tbody.innerHTML = level2.dimensions.map(dim => `
-                <tr>
-                    <td>${dim.name}</td>
-                    <td>
-                        <span class="stress-badge stress-${dim.stress}">${dim.stress}</span>
-                    </td>
-                    <td>${dim.commentary || ''}</td>
-                </tr>
-            `).join('');
-        }
+    // Construct dimensions array from individual fields
+    const dimensions = [
+        { name: 'Breadth', stress: delta.breadth, commentary: delta.breadthText },
+        { name: 'Liquidity', stress: delta.liquidity, commentary: delta.liquidityText },
+        { name: 'Volatility', stress: delta.volatility, commentary: delta.volatilityText },
+        { name: 'Leadership', stress: delta.leadership, commentary: delta.leadershipText }
+    ];
+    
+    const tbody = document.querySelector('#layer2 .data-table tbody');
+    if (tbody) {
+        tbody.innerHTML = dimensions.map(dim => `
+            <tr>
+                <td>${dim.name}</td>
+                <td>
+                    <span class="stress-badge stress-${dim.stress}">${dim.stress}</span>
+                </td>
+                <td>${dim.commentary || ''}</td>
+            </tr>
+        `).join('');
     }
 
     // Update Rationale
     const rationaleList = document.querySelector('#layer2 .rationale ul');
-    if (rationaleList && level2.rationale && level2.rationale.length > 0) {
-        rationaleList.innerHTML = level2.rationale.map(item => `<li>${item}</li>`).join('');
+    if (rationaleList && delta.rationaleBullets) {
+        // Parse JSON array if it's a string
+        const rationale = typeof delta.rationaleBullets === 'string' 
+            ? JSON.parse(delta.rationaleBullets) 
+            : delta.rationaleBullets;
+        if (Array.isArray(rationale) && rationale.length > 0) {
+            rationaleList.innerHTML = rationale.map(item => `<li>${item}</li>`).join('');
+        }
     }
 
     // Update Plain-English Summary
     const plainEnglishText = document.querySelector('#layer2 .plain-english p:first-of-type');
-    if (plainEnglishText && level2.plainEnglish) {
-        plainEnglishText.textContent = level2.plainEnglish;
+    if (plainEnglishText && delta.plainEnglishSummary) {
+        plainEnglishText.textContent = delta.plainEnglishSummary;
     }
 
-    // Update defensive guidance
+    // Update defensive guidance (next triggers)
     const defensiveGuidance = document.querySelector('#layer2 .plain-english p:last-of-type');
-    if (defensiveGuidance && level2.defensiveGuidance) {
-        defensiveGuidance.textContent = level2.defensiveGuidance;
+    if (defensiveGuidance && delta.nextTriggersDetail) {
+        defensiveGuidance.textContent = delta.nextTriggersDetail;
     }
 }
 
