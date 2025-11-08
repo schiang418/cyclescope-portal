@@ -333,9 +333,18 @@ function updateGammaLayer2(gamma) {
     summaryEl.textContent = gamma.overallSummary;
   }
   
-  // Domain Details
-  if (gamma.domainDetails && Array.isArray(gamma.domainDetails)) {
-    updateGammaDomainDetails(gamma.domainDetails);
+  // Domain Details - Convert object to array format
+  if (gamma.domainDetails && typeof gamma.domainDetails === 'object') {
+    // API returns domainDetails as an object with domain keys
+    // Convert to array format expected by updateGammaDomainDetails
+    const domainDetailsArray = Object.entries(gamma.domainDetails).map(([key, value]) => ({
+      domain_name: formatDomainName(key),
+      summary: value.key_takeaway || value.analysis || 'N/A',
+      observations: value.observations || 'N/A',
+      interpretation: value.analysis || value.key_takeaway || 'N/A'
+    }));
+    
+    updateGammaDomainDetails(domainDetailsArray);
   }
 }
 
@@ -616,6 +625,24 @@ function updateDeltaStressScores(delta) {
       el.innerHTML = `<span class="stress-circle ${colorClass}">${value}</span>`;
     }
   });
+}
+
+/**
+ * Format domain name from API key to display name
+ * @param {string} key - Domain key from API (e.g., 'credit_liquidity')
+ * @returns {string} - Formatted display name (e.g., 'Credit Liquidity')
+ */
+function formatDomainName(key) {
+  const domainMap = {
+    'breadth': 'Breadth',
+    'sentiment': 'Sentiment',
+    'leadership': 'Leadership',
+    'volatility': 'Volatility',
+    'macro_trend': 'Macro Trend',
+    'credit_liquidity': 'Credit Liquidity'
+  };
+  
+  return domainMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
 /**
