@@ -334,6 +334,9 @@ function updateGammaLayer2(gamma) {
   }
   
   // Domain Details - Convert object to array format
+  console.log('[DEBUG] gamma.domainDetails:', gamma.domainDetails);
+  console.log('[DEBUG] typeof gamma.domainDetails:', typeof gamma.domainDetails);
+  
   if (gamma.domainDetails && typeof gamma.domainDetails === 'object') {
     // API returns domainDetails as an object with domain keys
     // Convert to array format expected by updateGammaDomainDetails
@@ -344,6 +347,7 @@ function updateGammaLayer2(gamma) {
       interpretation: value.analysis || value.key_takeaway || 'N/A'
     }));
     
+    console.log('[DEBUG] domainDetailsArray:', domainDetailsArray);
     updateGammaDomainDetails(domainDetailsArray);
   }
 }
