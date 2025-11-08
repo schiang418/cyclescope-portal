@@ -42,28 +42,43 @@ function updateGammaLayer1(gamma) {
         postureEl.style.color = postureColors[gamma.macroPostureLabel] || 'var(--text-primary)';
     }
     
-    // Update domain status table
+    // Update domain status table with colored badges
     const tableBody = document.querySelector('#gammaDomainTable');
-    if (tableBody && gamma.domainDetails) {
+    if (tableBody && gamma.domains && Array.isArray(gamma.domains)) {
         const rows = tableBody.querySelectorAll('tr');
         
-        // Map domain keys to row indices
-        const domainMapping = [
-            { key: 'leadership', row: 0 },
-            { key: 'breadth', row: 1 },
-            { key: 'sentiment', row: 2 },
-            { key: 'volatility', row: 3 },
-            { key: 'credit_liquidity', row: 4 },
-            { key: 'macro_trend', row: 5 }
-        ];
+        // Map domain names to row indices
+        const domainOrder = ['Leadership', 'Breadth', 'Sentiment', 'Volatility', 'Credit', 'Macro'];
         
-        domainMapping.forEach(({ key, row }) => {
-            const domain = gamma.domainDetails[key];
-            if (domain && rows[row]) {
-                const statusCell = rows[row].querySelector('td:last-child');
-                if (statusCell) {
-                    // Use key_takeaway as the status summary
-                    statusCell.textContent = domain.key_takeaway || domain.analysis || 'N/A';
+        gamma.domains.forEach((domain) => {
+            // Find matching row by domain name
+            let rowIndex = -1;
+            if (domain.domain_name === 'Leadership') rowIndex = 0;
+            else if (domain.domain_name === 'Breadth') rowIndex = 1;
+            else if (domain.domain_name === 'Sentiment') rowIndex = 2;
+            else if (domain.domain_name === 'Volatility') rowIndex = 3;
+            else if (domain.domain_name.includes('Credit') || domain.domain_name.includes('Liquidity')) rowIndex = 4;
+            else if (domain.domain_name.includes('Macro')) rowIndex = 5;
+            
+            if (rowIndex >= 0 && rows[rowIndex]) {
+                const statusCell = rows[rowIndex].querySelector('td:last-child');
+                const badge = statusCell?.querySelector('.status-badge');
+                
+                if (badge) {
+                    // Map emoji to CSS color class
+                    const colorMap = {
+                        '🟢': 'green',
+                        '🟡': 'yellow',
+                        '🟠': 'orange',
+                        '🔴': 'red'
+                    };
+                    
+                    const colorClass = colorMap[domain.color_code] || 'gray';
+                    badge.className = `status-badge ${colorClass}`;
+                    
+                    // Display format: "Bullish (Strong)"
+                    const strengthText = domain.strength_label ? ` (${domain.strength_label})` : '';
+                    badge.textContent = `${domain.color_code} ${domain.bias_label}${strengthText}`;
                 }
             }
         });
