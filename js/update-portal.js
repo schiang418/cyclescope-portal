@@ -192,36 +192,8 @@ function updateFusionLayer2(fusion, data) {
 function updateGammaSection(data) {
   if (!data.gamma) return;
   
-  let gamma = data.gamma;
-  
-  // Parse fullAnalysis.gamma if it's a JSON string
-  if (data.fullAnalysis && data.fullAnalysis.gamma) {
-    try {
-      const fullGamma = typeof data.fullAnalysis.gamma === 'string' 
-        ? JSON.parse(data.fullAnalysis.gamma) 
-        : data.fullAnalysis.gamma;
-      
-      // Use level1 data for Layer 1 display
-      if (fullGamma.level1) {
-        gamma = {
-          ...gamma,
-          asofWeek: fullGamma.level1.asof_week,
-          cycleStagePrimary: fullGamma.level1.cycle_stage_primary,
-          cycleStageTransition: fullGamma.level1.cycle_stage_transition,
-          macroPostureLabel: fullGamma.level1.macro_posture_label,
-          headlineSummary: fullGamma.level1.headline_summary,
-          domains: fullGamma.level1.domains,
-          // Layer 2 data
-          phaseConfidence: fullGamma.level2?.phase_confidence,
-          cycleTone: fullGamma.level2?.cycle_tone,
-          overallSummary: fullGamma.level2?.overall_summary,
-          domainDetails: fullGamma.level2?.domain_details
-        };
-      }
-    } catch (e) {
-      console.error('Failed to parse fullAnalysis.gamma:', e);
-    }
-  }
+  // API returns gamma data directly in flat structure
+  const gamma = data.gamma;
   
   // Layer 1 Fields
   
