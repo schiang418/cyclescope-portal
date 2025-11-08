@@ -359,7 +359,8 @@
             
             // Display latest date for Gamma chart
             if (history.length > 0) {
-                const latestSnapshot = history[history.length - 1];
+                // history is ordered newest to oldest, so first element is latest
+                const latestSnapshot = history[0];
                 const latestDate = latestSnapshot.date || latestSnapshot.createdAt;
                 const dateDisplay = document.getElementById('gammaLatestDate');
                 if (dateDisplay && latestDate) {
@@ -438,7 +439,8 @@
             
             // Display latest date for Fragility chart
             if (history.length > 0) {
-                const latestSnapshot = history[history.length - 1];
+                // history is ordered newest to oldest, so first element is latest
+                const latestSnapshot = history[0];
                 const latestDate = latestSnapshot.date || latestSnapshot.createdAt;
                 const dateDisplay = document.getElementById('fragilityLatestDate');
                 if (dateDisplay && latestDate) {
