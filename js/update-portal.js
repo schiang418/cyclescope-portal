@@ -340,7 +340,9 @@ function updateGammaLayer2(gamma) {
   if (gamma.domainDetails && typeof gamma.domainDetails === 'object') {
     // API returns domainDetails as an object with domain keys
     // Convert to array format expected by updateGammaDomainDetails
-    const domainDetailsArray = Object.entries(gamma.domainDetails).map(([key, value]) => ({
+    const domainDetailsArray = Object.entries(gamma.domainDetails)
+      .filter(([key]) => key !== 'overall_summary')  // Filter out overall_summary to prevent duplicate display
+      .map(([key, value]) => ({
       domain_name: formatDomainName(key),
       summary: value.key_takeaway || value.analysis || 'N/A',
       observations: value.observations || 'N/A',
