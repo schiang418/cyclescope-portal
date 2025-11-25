@@ -3,6 +3,13 @@
  * Updates the portal UI with real-time data from the API
  */
 
+// ============================================
+// DELTA VERSION TOGGLE
+// ============================================
+// Set to true to use Delta V2, false to use Delta V1
+const USE_DELTA_V2 = true; // Default to Delta V2
+// ============================================
+
 /**
  * Main function to update the entire portal
  */
@@ -22,6 +29,11 @@ async function updatePortal() {
     // Update all sections
     updateFusionSection(data);
     updateGammaSection(data);
+    
+    // Initialize Delta version visibility
+    initializeDeltaVersion();
+    
+    // Update Delta section (V1 or V2 based on toggle)
     updateDeltaSection(data);
     
     // Update last updated time
@@ -381,9 +393,16 @@ function updateGammaDomainDetails(domainDetails) {
 
 /**
  * Update Delta section with API data
+ * Routes to V1 or V2 based on USE_DELTA_V2 toggle
  * @param {Object} data - Analysis data from API
  */
 function updateDeltaSection(data) {
+  if (USE_DELTA_V2) {
+    updateDeltaV2Section(data);
+    return;
+  }
+  
+  // ===== DELTA V1 LOGIC BELOW =====
   if (!data.delta) return;
   
   let delta = { ...data.delta };
@@ -729,6 +748,152 @@ function showError(message) {
     errorBanner.style.display = 'none';
   }, 5000);
 }
+
+// ============================================
+// DELTA V2 FUNCTIONS
+// ============================================
+
+/**
+ * Initialize Delta version visibility
+ * Shows either Delta V1 or V2 card based on USE_DELTA_V2 toggle
+ */
+function initializeDeltaVersion() {
+  const v1Card = document.querySelector('.delta-v1-card');
+  const v2Card = document.querySelector('.delta-v2-card');
+  
+  if (!v1Card || !v2Card) {
+    console.warn('Delta V1 or V2 card not found in DOM');
+    return;
+  }
+  
+  if (USE_DELTA_V2) {
+    v1Card.style.display = 'none';
+    v2Card.style.display = 'block';
+  } else {
+    v1Card.style.display = 'block';
+    v2Card.style.display = 'none';
+  }
+}
+
+/**
+ * Update Delta V2 section with API data
+ * @param {Object} data - Analysis data from API
+ */
+function updateDeltaV2Section(data) {
+  if (!data.deltaV2) {
+    console.warn('No deltaV2 data available');
+    return;
+  }
+  
+  const deltaV2 = data.deltaV2;
+  
+  // Layer 1 Fields
+  
+  // Update Market Condition
+  const marketConditionEl = document.querySelector('#deltaV2MarketCondition');
+  if (marketConditionEl && deltaV2.marketCondition) {
+    marketConditionEl.textContent = deltaV2.marketCondition;
+  }
+  
+  // Update Fragility Badge (from Delta V1 data)
+  if (data.delta) {
+    const fragilityBadge = document.querySelector('#deltaV2FragilityBadge');
+    
+    if (fragilityBadge && data.delta.fragilityLabel) {
+      fragilityBadge.textContent = data.delta.fragilityLabel;
+      // Apply color based on fragilityColor (use CSS class names: red, yellow, green)
+      const colorClass = data.delta.fragilityColor === 'RED' ? 'red' : 
+                         data.delta.fragilityColor === 'YELLOW' ? 'yellow' : 'green';
+      fragilityBadge.className = `status-badge ${colorClass}`;
+      fragilityBadge.style.padding = '0.6rem 1.2rem';
+    }
+  }
+  
+  // Update Turning Point Badge (with color coding)
+  const turningPointBadge = document.querySelector('#deltaV2TurningPointBadge');
+  if (turningPointBadge && deltaV2.turningPoint) {
+    const colorClass = getTurningPointClass(deltaV2.turningPoint);
+    turningPointBadge.className = `status-badge ${colorClass}`;
+    turningPointBadge.textContent = deltaV2.turningPoint;
+  }
+  
+  // Update 1-2 Month Outlook Badge (with color coding)
+  const outlookBadge = document.querySelector('#deltaV2OutlookBadge');
+  if (outlookBadge && deltaV2.outlook12Month) {
+    const outlookClass = getTurningPointClass(deltaV2.outlook12Month);
+    outlookBadge.className = `status-badge ${outlookClass}`;
+    outlookBadge.textContent = deltaV2.outlook12Month;
+  }
+  
+  // Layer 2 Fields
+  updateDeltaV2Layer2(deltaV2);
+}
+
+/**
+ * Update Delta V2 Layer 2 (detailed analysis)
+ * @param {Object} deltaV2 - Delta V2 data object
+ */
+function updateDeltaV2Layer2(deltaV2) {
+  // Update 7 Domain Paragraphs
+  if (deltaV2.domains) {
+    const domainKeys = [
+      'breadth',
+      'leadership', 
+      'credit',
+      'volatility',
+      'macro',
+      'sentiment',
+      'index_price_structure'
+    ];
+    
+    domainKeys.forEach(key => {
+      const el = document.querySelector(`#deltaV2Domain_${key}`);
+      if (el && deltaV2.domains[key]) {
+        el.textContent = deltaV2.domains[key];
+      }
+    });
+  }
+  
+  // Update 3 Turning Point Evidence Paragraphs
+  if (deltaV2.turningPointEvidence) {
+    const evidenceKeys = ['top_evidence', 'bottom_evidence', 'unified_interpretation'];
+    evidenceKeys.forEach((key, index) => {
+      const el = document.querySelector(`#deltaV2Evidence${index + 1}`);
+      if (el && deltaV2.turningPointEvidence[key]) {
+        el.textContent = deltaV2.turningPointEvidence[key];
+      }
+    });
+  }
+  
+  // Update Detailed Outlook Paragraph
+  const outlookDetailEl = document.querySelector('#deltaV2OutlookDetail');
+  if (outlookDetailEl && deltaV2.outlookParagraph) {
+    outlookDetailEl.textContent = deltaV2.outlookParagraph;
+  }
+}
+
+/**
+ * Get CSS class for turning point badge color
+ * @param {string} turningPoint - Turning point text
+ * @returns {string} CSS class name
+ */
+function getTurningPointClass(turningPoint) {
+  const text = turningPoint.toLowerCase();
+  
+  if (text.includes('top') || text.includes('peak')) {
+    return 'red'; // Red for potential top
+  } else if (text.includes('bottom') || text.includes('trough')) {
+    return 'green'; // Green for potential bottom
+  } else if (text.includes('transition') || text.includes('inflection')) {
+    return 'yellow'; // Yellow for transition
+  } else {
+    return 'neutral'; // Gray for neutral/unclear
+  }
+}
+
+// ============================================
+// END DELTA V2 FUNCTIONS
+// ============================================
 
 /**
  * Initialize portal on page load

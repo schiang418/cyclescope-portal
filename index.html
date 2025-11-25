@@ -107,8 +107,8 @@
         }
     </style>
     <!-- API Client Scripts -->
-    <script src="js/api-client.js?v=20251107v3"></script>
-    <script src="js/update-portal.js?v=20251108v1"></script>
+    <script src="js/api-client.js?v=20251125v10"></script>
+    <script src="js/update-portal.js?v=20251125v10"></script>
 </head>
 <body>
     <!-- Loading Indicator -->
@@ -315,8 +315,8 @@
                 </div>
             </div>
 
-            <!-- DELTA CARD (Right) -->
-            <div class="card">
+            <!-- DELTA V1 CARD (Right) -->
+            <div class="card delta-v1-card">
                 <div class="card-header">
                     <h2 class="card-title">
                         <img src="images/delta-icon.svg" alt="Delta" style="width: 32px; height: 32px;">
@@ -451,6 +451,168 @@
                 </div>
             </div>
 
+            <!-- DELTA V2 CARD (Right) - Hidden by default -->
+            <div class="card delta-v2-card" style="display: none;">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <img src="images/delta-icon.svg" alt="Delta" style="width: 32px; height: 32px;">
+                        <span>Delta — Turning Point Engine</span>
+                    </h2>
+                    <button class="layer-toggle" onclick="toggleDeltaV2()">
+                        <span id="deltaV2ToggleText">Layer 2 ▼</span>
+                    </button>
+                </div>
+
+                <!-- DELTA V2 LAYER 1 -->
+                <div id="deltaV2Layer1" class="layer-content active">
+                    <div class="card-content">
+                        <!-- Market Condition -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>📊</span>
+                                <span>Market Condition</span>
+                            </h3>
+                            <p id="deltaV2MarketCondition" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Fragility -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>⚠️</span>
+                                <span>Fragility</span>
+                            </h3>
+                            <div style="text-align: center;">
+                                <div id="deltaV2FragilityBadge" class="status-badge neutral" style="padding: 0.6rem 1.2rem;">
+                                    Loading...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Turning Point -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🔄</span>
+                                <span>Turning Point</span>
+                            </h3>
+                            <div style="text-align: center;">
+                                <span id="deltaV2TurningPointBadge" class="status-badge neutral" style="padding: 0.6rem 1.2rem; font-size: 0.95rem;">
+                                    Loading...
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 1-2 Month Outlook -->
+                        <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                            <h3 style="font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🔮</span>
+                                <span>1-2 Month Outlook</span>
+                            </h3>
+                            <div style="text-align: center;">
+                                <span id="deltaV2OutlookBadge" class="status-badge neutral" style="padding: 0.6rem 1.2rem; font-size: 0.95rem;">
+                                    Loading...
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DELTA V2 LAYER 2 -->
+                <div id="deltaV2Layer2" class="layer-content">
+                    <div class="card-content" style="max-height: 600px; overflow-y: auto;">
+                        <!-- 7 Domain Analysis -->
+                        <h3 style="font-size: 0.95rem; margin-bottom: 1rem;">🔍 Domain Analysis</h3>
+                        
+                        <!-- Breadth -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Breadth</h4>
+                            <p id="deltaV2Domain_breadth" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Leadership -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Leadership</h4>
+                            <p id="deltaV2Domain_leadership" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Credit -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Credit</h4>
+                            <p id="deltaV2Domain_credit" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Volatility -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Volatility</h4>
+                            <p id="deltaV2Domain_volatility" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Macro -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Macro</h4>
+                            <p id="deltaV2Domain_macro" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Sentiment -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Sentiment</h4>
+                            <p id="deltaV2Domain_sentiment" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Index Price Structure -->
+                        <div class="domain-analysis" style="margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">Index Price Structure</h4>
+                            <p id="deltaV2Domain_index_price_structure" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                                Loading...
+                            </p>
+                        </div>
+
+                        <!-- Turning Point Evidence -->
+                        <div style="border-top: 1px solid var(--border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                            <h3 style="font-size: 0.95rem; margin-bottom: 1rem;">🎯 Turning Point Evidence</h3>
+                            <ol style="padding-left: 1.5rem; margin: 0;">
+                                <li style="margin-bottom: 1rem;">
+                                    <p id="deltaV2Evidence1" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                                        Loading...
+                                    </p>
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <p id="deltaV2Evidence2" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                                        Loading...
+                                    </p>
+                                </li>
+                                <li style="margin-bottom: 1rem;">
+                                    <p id="deltaV2Evidence3" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                                        Loading...
+                                    </p>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <!-- Detailed Outlook -->
+                        <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem; margin-top: 1.5rem;">
+                            <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem;">🔮 Detailed Outlook</h4>
+                            <p id="deltaV2OutlookDetail" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                                Loading...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Additional Info Section -->
@@ -525,7 +687,7 @@
             }
         }
 
-        // Delta Layer Toggle
+        // Delta V1 Layer Toggle
         let deltaLayer = 1;
         function toggleDelta() {
             const layer1 = document.getElementById('deltaLayer1');
@@ -542,6 +704,26 @@
                 layer1.classList.add('active');
                 toggleText.textContent = 'Layer 2 ▼';
                 deltaLayer = 1;
+            }
+        }
+
+        // Delta V2 Layer Toggle
+        let deltaV2Layer = 1;
+        function toggleDeltaV2() {
+            const layer1 = document.getElementById('deltaV2Layer1');
+            const layer2 = document.getElementById('deltaV2Layer2');
+            const toggleText = document.getElementById('deltaV2ToggleText');
+
+            if (deltaV2Layer === 1) {
+                layer1.classList.remove('active');
+                layer2.classList.add('active');
+                toggleText.textContent = 'Layer 1 ▲';
+                deltaV2Layer = 2;
+            } else {
+                layer2.classList.remove('active');
+                layer1.classList.add('active');
+                toggleText.textContent = 'Layer 2 ▼';
+                deltaV2Layer = 1;
             }
         }
     </script>
