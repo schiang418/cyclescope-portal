@@ -874,20 +874,47 @@ function updateDeltaV2Layer2(deltaV2) {
 
 /**
  * Get CSS class for turning point badge color
- * @param {string} turningPoint - Turning point text
+ * Handles both Turning Point and Outlook classifications
+ * @param {string} turningPoint - Turning point or outlook text
  * @returns {string} CSS class name
  */
 function getTurningPointClass(turningPoint) {
-  const text = turningPoint.toLowerCase();
+  const text = turningPoint.toLowerCase().trim();
   
-  if (text.includes('top') || text.includes('peak')) {
-    return 'red'; // Red for potential top
-  } else if (text.includes('bottom') || text.includes('trough')) {
-    return 'green'; // Green for potential bottom
-  } else if (text.includes('transition') || text.includes('inflection')) {
-    return 'yellow'; // Yellow for transition
-  } else {
-    return 'neutral'; // Gray for neutral/unclear
+  // Turning Point classifications
+  if (text === 'top_formed' || text === 'top formed') {
+    return 'red'; // Red: Top confirmed
+  } else if (text === 'top_forming' || text === 'top forming') {
+    return 'yellow'; // Yellow: Top forming
+  } else if (text === 'bottom_formed' || text === 'bottom formed') {
+    return 'green'; // Green: Bottom confirmed
+  } else if (text === 'bottom_forming' || text === 'bottom forming') {
+    return 'yellow'; // Yellow: Bottom forming
+  } else if (text === 'no_turning_point' || text === 'no turning point') {
+    return 'neutral'; // Gray: No turning point
+  } else if (text === 'ambiguous') {
+    return 'neutral'; // Gray: Ambiguous
+  }
+  
+  // Outlook classifications
+  else if (text === 'bullish') {
+    return 'green'; // Green: Bullish
+  } else if (text === 'moderately_bullish' || text === 'moderately bullish') {
+    return 'green'; // Green: Moderately bullish
+  } else if (text === 'neutral') {
+    return 'neutral'; // Gray: Neutral
+  } else if (text === 'cautious') {
+    return 'yellow'; // Yellow: Cautious
+  } else if (text === 'bearish') {
+    return 'red'; // Red: Bearish
+  } else if (text === 'highly_bearish' || text === 'highly bearish') {
+    return 'red'; // Red: Highly bearish
+  }
+  
+  // Fallback for any unexpected values
+  else {
+    console.warn(`Unknown turning point/outlook value: "${turningPoint}", using neutral color`);
+    return 'neutral'; // Gray fallback for unexpected values
   }
 }
 
