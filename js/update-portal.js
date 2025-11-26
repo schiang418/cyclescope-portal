@@ -856,7 +856,7 @@ function updateDeltaV2Layer2(deltaV2) {
   
   // Update 3 Turning Point Evidence Paragraphs
   if (deltaV2.turningPointEvidence) {
-    const evidenceKeys = ['top_evidence', 'bottom_evidence', 'unified_turning_point'];
+    const evidenceKeys = ['top_evidence', 'bottom_evidence', 'unified_interpretation'];
     evidenceKeys.forEach((key, index) => {
       const el = document.querySelector(`#deltaV2Evidence${index + 1}`);
       if (el && deltaV2.turningPointEvidence[key]) {
