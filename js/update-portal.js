@@ -803,6 +803,7 @@ function updateDeltaV2Section(data) {
       fragilityBadge.textContent = data.delta.fragilityLabel;
       // Apply color based on fragilityColor (use CSS class names: red, yellow, green)
       const colorClass = data.delta.fragilityColor === 'RED' ? 'red' : 
+                         data.delta.fragilityColor === 'ORANGE' ? 'orange' :
                          data.delta.fragilityColor === 'YELLOW' ? 'yellow' : 'green';
       fragilityBadge.className = `status-badge ${colorClass}`;
       fragilityBadge.style.padding = '0.6rem 1.2rem';
