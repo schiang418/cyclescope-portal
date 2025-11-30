@@ -41,7 +41,7 @@ function updateFusionV2Layer1(secularData) {
         <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
           <span style="font-size: 1.5rem;">🔼</span>
           <div>
-            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Secular Trend</div>
+            <div style="font-size: 0.875rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Secular Trend</div>
             <div style="font-size: 1.1rem; color: var(--text-primary);">${layer1.trend}</div>
           </div>
         </div>
@@ -49,7 +49,7 @@ function updateFusionV2Layer1(secularData) {
       
       <!-- Recent Behavior Section -->
       <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 0.5rem; border-left: 4px solid var(--accent-blue);">
-        <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
+        <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
           <span>📊</span>
           <span>Recent Behavior</span>
         </h4>
@@ -66,8 +66,8 @@ function updateFusionV2Layer1(secularData) {
         <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
           <span style="font-size: 1.5rem;">⚠️</span>
           <div>
-            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Risk Bias</div>
-            <div style="font-size: 1rem; font-weight: 500; color: var(--text-primary);">${layer1.momentum}</div>
+            <div style="font-size: 0.875rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Risk Bias</div>
+            <div style="font-size: 1rem; color: var(--text-primary);">${layer1.momentum}</div>
           </div>
         </div>
       </div>
