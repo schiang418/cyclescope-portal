@@ -37,14 +37,14 @@ function updateFusionV2Layer1(secularData) {
   layer1Container.innerHTML = `
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
       <!-- Secular Trend -->
-      <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem;">
-        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-          <span style="font-size: 1.5rem;">🔼</span>
-          <div>
-            <div style="font-size: 1rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Secular Trend</div>
-            <div style="font-size: 1.1rem; color: var(--text-secondary);">${layer1.trend}</div>
-          </div>
-        </div>
+      <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 0.5rem;">
+        <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+          <span>🔼</span>
+          <span>Secular Trend</span>
+        </h4>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          ${layer1.trend}
+        </p>
       </div>
       
       <!-- Recent Behavior Section -->
@@ -62,14 +62,14 @@ function updateFusionV2Layer1(secularData) {
       </div>
       
       <!-- Risk Bias -->
-      <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem;">
-        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-          <span style="font-size: 1.5rem;">⚠️</span>
-          <div>
-            <div style="font-size: 1rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Risk Bias</div>
-            <div style="font-size: 1rem; color: var(--text-secondary);">${layer1.momentum}</div>
-          </div>
-        </div>
+      <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 0.5rem;">
+        <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚠️</span>
+          <span>Risk Bias</span>
+        </h4>
+        <p style="color: var(--text-secondary); line-height: 1.7;">
+          ${layer1.momentum}
+        </p>
       </div>
     </div>
   `;
