@@ -63,7 +63,7 @@ function updateFusionV2Layer1(secularData) {
       
       <!-- Risk Bias -->
       <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
           <span style="font-size: 1.5rem;">⚠️</span>
           <div>
             <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Risk Bias</div>
