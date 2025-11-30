@@ -42,7 +42,7 @@ function updateFusionV2Layer1(secularData) {
           <span style="font-size: 1.5rem;">🔼</span>
           <div>
             <div style="font-size: 0.875rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Secular Trend</div>
-            <div style="font-size: 1.1rem; color: var(--text-primary);">${layer1.trend}</div>
+            <div style="font-size: 1.1rem; color: var(--text-secondary);">${layer1.trend}</div>
           </div>
         </div>
       </div>
@@ -53,10 +53,10 @@ function updateFusionV2Layer1(secularData) {
           <span>📊</span>
           <span>Recent Behavior</span>
         </h4>
-        <p style="color: var(--text-primary); line-height: 1.7; margin-bottom: 0.75rem;">
+        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.75rem;">
           ${layer1.support}
         </p>
-        <p style="color: var(--text-primary); line-height: 1.7;">
+        <p style="color: var(--text-secondary); line-height: 1.7;">
           ${layer1.resistance}
         </p>
       </div>
@@ -67,7 +67,7 @@ function updateFusionV2Layer1(secularData) {
           <span style="font-size: 1.5rem;">⚠️</span>
           <div>
             <div style="font-size: 0.875rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Risk Bias</div>
-            <div style="font-size: 1rem; color: var(--text-primary);">${layer1.momentum}</div>
+            <div style="font-size: 1rem; color: var(--text-secondary);">${layer1.momentum}</div>
           </div>
         </div>
       </div>
