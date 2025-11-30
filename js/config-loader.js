@@ -52,3 +52,18 @@ function isFusionV2() {
 function getSecularApiUrl() {
   return CONFIG.API_BASE_URL;
 }
+
+// Expose to window object
+window.CONFIG = CONFIG;
+window.loadConfig = loadConfig;
+window.getConfig = getConfig;
+window.isFusionV2 = isFusionV2;
+window.getSecularApiUrl = getSecularApiUrl;
+
+// Auto-load configuration when script loads
+loadConfig().then(config => {
+  window.CONFIG = config;
+  console.log('✅ Configuration ready:', config);
+}).catch(error => {
+  console.error('❌ Failed to load configuration:', error);
+});
