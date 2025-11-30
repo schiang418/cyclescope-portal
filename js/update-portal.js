@@ -960,7 +960,7 @@ async function updateFusionSectionV2() {
 }
 
 // Initialize portal on page load
-window.addEventListener('DOMContentLoaded', updatePortal);=> {
+window.addEventListener('DOMContentLoaded', () => {
   console.log('CycleScope Portal initializing...');
   updatePortal();
   
