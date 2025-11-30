@@ -42,7 +42,7 @@ function updateFusionV2Layer1(secularData) {
           <span style="font-size: 1.5rem;">🔼</span>
           <div>
             <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Secular Trend</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">${layer1.trend}</div>
+            <div style="font-size: 1.1rem; color: var(--text-primary);">${layer1.trend}</div>
           </div>
         </div>
       </div>
