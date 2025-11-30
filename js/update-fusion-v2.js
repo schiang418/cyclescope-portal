@@ -53,10 +53,10 @@ function updateFusionV2Layer1(secularData) {
           <span>📊</span>
           <span>Recent Behavior</span>
         </h4>
-        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.75rem;">
+        <p style="color: var(--text-primary); line-height: 1.7; margin-bottom: 0.75rem;">
           ${layer1.support}
         </p>
-        <p style="color: var(--text-secondary); line-height: 1.7;">
+        <p style="color: var(--text-primary); line-height: 1.7;">
           ${layer1.resistance}
         </p>
       </div>
