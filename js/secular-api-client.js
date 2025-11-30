@@ -108,8 +108,8 @@ function parseSecularAnalysis(data) {
     layer3,
     metadata: {
       timestamp: data.timestamp || new Date().toISOString(),
-      chartUrl: analysis.original_chart_url ? `${getSecularApiUrl()}${analysis.original_chart_url}` : getLatestChartUrl(),
-      annotatedChartUrl: analysis.annotated_chart_url ? `${getSecularApiUrl()}${analysis.annotated_chart_url}` : getAnnotatedChartUrl(),
+      chartUrl: getLatestChartUrl(),
+      annotatedChartUrl: getAnnotatedChartUrl(),
       asofDate: analysis.asof_date || new Date().toISOString(),
     },
   };
