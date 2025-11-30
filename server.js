@@ -1,8 +1,20 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
+
+// Load environment variables from .env file
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Environment variables endpoint for client-side access
+app.get('/api/config', (req, res) => {
+  res.json({
+    FUSION_VERSION: process.env.FUSION_VERSION || 'v1',
+    API_BASE_URL: process.env.API_BASE_URL || 'https://cyclescope-secular-production.up.railway.app',
+  });
+});
 
 // Serve static files
 app.use(express.static(__dirname));

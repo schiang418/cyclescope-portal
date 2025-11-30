@@ -18,6 +18,11 @@ async function updatePortal() {
     // Show loading state
     showLoading();
     
+    // Load configuration first
+    await loadConfig();
+    const config = getConfig();
+    console.log('🔧 Using configuration:', config);
+    
     // Fetch latest analysis data
     const data = await fetchLatestAnalysis();
     
@@ -26,8 +31,16 @@ async function updatePortal() {
       return;
     }
     
-    // Update all sections
-    updateFusionSection(data);
+    // Update Fusion section based on FUSION_VERSION
+    if (config.FUSION_VERSION === 'v2') {
+      console.log('📊 Using Fusion V2 (secular assistant)');
+      await updateFusionSectionV2();
+    } else {
+      console.log('📊 Using Fusion V1 (existing)');
+      updateFusionSection(data);
+    }
+    
+    // Update other sections
     updateGammaSection(data);
     
     // Initialize Delta version visibility
@@ -922,11 +935,32 @@ function getTurningPointClass(turningPoint) {
 // ============================================
 // END DELTA V2 FUNCTIONS
 // ============================================
-
 /**
- * Initialize portal on page load
+ * Update Fusion section with secular assistant data (V2)
  */
-document.addEventListener('DOMContentLoaded', () => {
+async function updateFusionSectionV2() {
+  try {
+    console.log('📡 Fetching secular assistant analysis...');
+    const rawData = await fetchSecularAnalysis();
+    const secularData = parseSecularAnalysis(rawData);
+    
+    if (!secularData) {
+      console.error('Failed to parse secular data');
+      showError('Failed to load secular analysis. Using fallback.');
+      return;
+    }
+    
+    console.log('✅ Secular data parsed:', secularData);
+    updateFusionV2(secularData);
+    
+  } catch (error) {
+    console.error('❌ Error updating Fusion V2:', error);
+    showError('Failed to load secular analysis. Please check API connection.');
+  }
+}
+
+// Initialize portal on page load
+window.addEventListener('DOMContentLoaded', updatePortal);=> {
   console.log('CycleScope Portal initializing...');
   updatePortal();
   

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fusion V2 Layer 1 - Mock Display</title>
+    <link rel="stylesheet" href="css/style.css?v=20251130">
+    <style>
+        body {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .status-badge.green {
+            background: var(--green) !important;
+            color: white !important;
+        }
+        .status-badge.yellow {
+            background: var(--yellow) !important;
+            color: white !important;
+        }
+        .status-badge.orange {
+            background: var(--orange) !important;
+            color: white !important;
+        }
+        .status-badge.red {
+            background: var(--red) !important;
+            color: white !important;
+        }
+        .status-badge.gray {
+            background: var(--text-muted) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="margin-bottom: 2rem; color: var(--text-primary);">Fusion V2 - Layer 1 Mock Display</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <img src="images/fusion-icon.svg" alt="Fusion" style="width: 32px; height: 32px;">
+                <span>Fusion — Market Synthesis</span>
+            </h2>
+        </div>
+        
+        <div id="fusionLayer1" class="layer-content active">
+            <div class="card-content">
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Secular Trend -->
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-size: 1.5rem;">🔼</span>
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Secular Trend</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">Upward</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Behavior Section -->
+                    <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 0.5rem; border-left: 4px solid var(--accent-blue);">
+                        <h4 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>📊</span>
+                            <span>Recent Behavior</span>
+                        </h4>
+                        <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.75rem;">
+                            The SPX has been in a secular bull market since the breakout above the 2000/2007 highs in 2013–2014. The index is currently positioned between the midline and the upper band of the secular rising channel, following a recent correction that touched the midline earlier in 2025.
+                        </p>
+                        <p style="color: var(--text-secondary); line-height: 1.7;">
+                            The current position suggests a continuation of the secular bull trend, with potential for further gains towards the upper band, though the risk of a pullback remains.
+                        </p>
+                    </div>
+                    
+                    <!-- Risk Bias -->
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-size: 1.5rem;">⚠️</span>
+                            <div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Risk Bias</div>
+                                <div style="font-size: 1rem; font-weight: 500; color: var(--text-primary);">Moderate upward bias with caution for potential corrections.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: 0.5rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Data Source Mapping:</h3>
+        <ul style="color: var(--text-secondary); line-height: 1.8;">
+            <li><strong>Secular Trend:</strong> <code>secular_trend</code> from DB (e.g., "Upward")</li>
+            <li><strong>Recent Behavior (paragraph 1):</strong> <code>recent_behavior_summary</code> from DB</li>
+            <li><strong>Recent Behavior (paragraph 2):</strong> <code>interpretation</code> from DB</li>
+            <li><strong>Risk Bias:</strong> <code>risk_bias</code> from DB (e.g., "Moderate upward bias with caution for potential corrections.")</li>
+        </ul>
+    </div>
+    
+    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-hover); border-radius: 0.5rem; border-left: 4px solid var(--accent-gold);">
+        <h3 style="margin-bottom: 1rem; color: var(--accent-gold);">💡 Implementation Notes:</h3>
+        <ul style="color: var(--text-secondary); line-height: 1.8;">
+            <li><strong>Neutral color scheme:</strong> All sections use consistent dark background (var(--bg-secondary)) without color-coding</li>
+            <li><strong>Icon indicators:</strong> 🔼 for Secular Trend, 📊 for Recent Behavior, ⚠️ for Risk Bias</li>
+            <li><strong>Visual hierarchy:</strong> Recent Behavior has blue left border for emphasis</li>
+            <li><strong>Typography:</strong> Label (small, secondary color) + Value (larger, primary color)</li>
+            <li>All data fetched from cyclescope-secular API <code>/analysis/latest</code> endpoint</li>
+        </ul>
+    </div>
+</body>
+</html>
