@@ -41,7 +41,7 @@ function updateFusionV2Layer1(secularData) {
         <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
           <span style="font-size: 1.5rem;">🔼</span>
           <div>
-            <div style="font-size: 0.875rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Secular Trend</div>
+            <div style="font-size: 1rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Secular Trend</div>
             <div style="font-size: 1.1rem; color: var(--text-secondary);">${layer1.trend}</div>
           </div>
         </div>
@@ -66,7 +66,7 @@ function updateFusionV2Layer1(secularData) {
         <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
           <span style="font-size: 1.5rem;">⚠️</span>
           <div>
-            <div style="font-size: 0.875rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Risk Bias</div>
+            <div style="font-size: 1rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">Risk Bias</div>
             <div style="font-size: 1rem; color: var(--text-secondary);">${layer1.momentum}</div>
           </div>
         </div>
