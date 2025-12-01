@@ -324,6 +324,19 @@ td[id$="Score"] .status-badge {
   font-weight: 500;
 }
 
+/* Gamma Layer specific overrides */
+#gammaLayer1 .info-label,
+#gammaLayer2 .info-label {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+#gammaLayer1 .info-value,
+#gammaLayer2 .info-value {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
 /* Lists */
 .key-points {
   list-style: none;

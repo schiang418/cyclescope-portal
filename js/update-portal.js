@@ -390,15 +390,15 @@ function updateGammaDomainDetails(domainDetails) {
   // Clear existing content
   container.innerHTML = '';
   
-  // Create detail sections for each domain
+  // Create detail sections for each domain (matching Delta V2 style)
   domainDetails.forEach(detail => {
     const section = document.createElement('div');
-    section.className = 'domain-detail-section';
+    section.style.cssText = 'margin-bottom: 1.5rem; border-left: 3px solid var(--accent-blue); padding-left: 1rem;';
     section.innerHTML = `
-      <h4>${detail.domain_name}</h4>
-      <p><strong>Summary:</strong> ${detail.summary || 'N/A'}</p>
-      <p><strong>Observations:</strong> ${detail.observations || 'N/A'}</p>
-      <p><strong>Interpretation:</strong> ${detail.interpretation || 'N/A'}</p>
+      <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-blue);">${detail.domain_name}</h4>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.5rem;"><strong>Summary:</strong> ${detail.summary || 'N/A'}</p>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 0.5rem;"><strong>Observations:</strong> ${detail.observations || 'N/A'}</p>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; margin: 0;"><strong>Interpretation:</strong> ${detail.interpretation || 'N/A'}</p>
     `;
     container.appendChild(section);
   });
