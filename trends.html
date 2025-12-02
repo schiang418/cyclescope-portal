@@ -36,6 +36,7 @@
             padding: 0.5rem 0;
             border-bottom: 1px solid var(--border-color);
             gap: 1rem;
+            width: 100%;
         }
         
         .domain-row:last-child {
@@ -48,12 +49,14 @@
             font-size: 0.875rem;
             color: var(--text-primary);
             flex-shrink: 0;
+            box-sizing: border-box;
         }
         
         .domain-circles {
             display: flex;
             flex: 1;
             flex-wrap: nowrap;
+            min-width: 0;
         }
         
         .circle-emoji {
@@ -536,6 +539,9 @@
         function renderGammaDomainTrends(history) {
             const container = document.getElementById('gammaTrendsContainer');
             
+            // Remove loading class and padding
+            container.classList.remove('loading');
+            
             // Build heatmap HTML
             let html = '<div class="domain-heatmap">';
             
@@ -592,6 +598,9 @@
          */
         function renderFragilityTrend(history) {
             const container = document.getElementById('fragilityTrendContainer');
+            
+            // Remove loading class and padding
+            container.classList.remove('loading');
             
             // Build chart HTML
             let html = '<div class="fragility-chart-container">';
