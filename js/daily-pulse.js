@@ -116,8 +116,8 @@ async function loadLatestNewsletter() {
 
 // Display Newsletter
 function displayNewsletter(newsletter) {
-    // Update date
-    const date = new Date(newsletter.publish_date || newsletter.publishDate);
+    // Update date - use created_at (actual generation date)
+    const date = new Date(newsletter.created_at || newsletter.createdAt);
     document.getElementById('pulseDate').textContent = date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
