@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { exec } = require('child_process');
 
 // Load environment variables from .env file
 require('dotenv').config();
@@ -13,6 +14,27 @@ app.get('/api/config', (req, res) => {
   res.json({
     FUSION_VERSION: process.env.FUSION_VERSION || 'v1',
     API_BASE_URL: process.env.API_BASE_URL || 'https://cyclescope-secular-production.up.railway.app',
+  });
+});
+
+// S&P 500 prices endpoint
+app.get('/api/spx-prices', (req, res) => {
+  const days = req.query.days || 30;
+  const scriptPath = path.join(__dirname, 'fetch_spx_data.py');
+  
+  exec(`python3 ${scriptPath} ${days}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error fetching SPX data:', error);
+      return res.status(500).json({ error: 'Failed to fetch SPX data' });
+    }
+    
+    try {
+      const data = JSON.parse(stdout);
+      res.json(data);
+    } catch (e) {
+      console.error('Error parsing SPX data:', e);
+      res.status(500).json({ error: 'Failed to parse SPX data' });
+    }
   });
 });
 

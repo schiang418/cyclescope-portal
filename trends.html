@@ -35,6 +35,7 @@
             align-items: center;
             padding: 0.75rem 0;
             border-bottom: 1px solid var(--border-color);
+            gap: 1rem;
         }
         
         .domain-row:last-child {
@@ -51,14 +52,17 @@
         
         .domain-circles {
             display: flex;
-            gap: 0.5rem;
+            flex: 1;
             flex-wrap: nowrap;
         }
         
         .circle-emoji {
-            font-size: 1.5rem; /* Default: 24px for 30 days */
+            font-size: 1.25rem;
             cursor: pointer;
             transition: transform 0.2s;
+            flex: 1;
+            display: flex;
+            justify-content: center;
         }
         
         /* Responsive circle sizes based on data count */
@@ -85,7 +89,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            width: 40px;
+            width: 120px;
             height: 300px;
             padding: 12px 0;
         }
@@ -118,7 +122,6 @@
             position: absolute;
             inset: 0;
             display: flex;
-            padding: 0 0.5rem;
         }
         
         .data-point-container {
@@ -175,6 +178,81 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* SPX Chart Styles */
+        .spx-chart-container {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spx-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .spx-chart-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .spx-latest-date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .spx-chart-area {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .spx-data-points {
+            position: absolute;
+            inset: 0;
+            display: flex;
+        }
+
+        .spx-data-point-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .spx-data-point {
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: absolute;
+        }
+
+        .spx-data-point:hover {
+            transform: scale(1.3);
+        }
+
+        /* Custom Tooltip */
+        .custom-tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .custom-tooltip.show {
+            opacity: 1;
+        }
         
         /* No Data State */
         .no-data {
@@ -221,6 +299,15 @@
             </div>
         </div>
 
+        <!-- S&P 500 Price Trend -->
+        <div id="spxChartContainer" class="spx-chart-container" style="display: none;">
+            <div class="spx-chart-header">
+                <h2>S&P 500 Price Trend <span id="spxTimeRange">(Last 30 Days)</span></h2>
+                <div id="spxLatestDate" class="spx-latest-date"></div>
+            </div>
+            <div id="spxChartArea"></div>
+        </div>
+
         <!-- Gamma 6 Domain Trends -->
         <div class="trend-chart">
             <h2 id="gammaTrendsTitle">Gamma 6 Domain Trends</h2>
@@ -240,6 +327,9 @@
             </div>
             <div id="fragilityLatestDate" style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;"></div>
         </div>
+
+        <!-- Custom Tooltip -->
+        <div id="customTooltip" class="custom-tooltip"></div>
     </div>
 
     <!-- API Client -->
@@ -252,6 +342,22 @@
         
         // Current selected time range
         let currentDays = 30;
+        
+        /**
+         * Fetch S&P 500 price data
+         * @param {number} days - Number of days to fetch
+         * @returns {Promise<Array>} Array of {date, price} objects
+         */
+        async function fetchSPXPrices(days) {
+            try {
+                const response = await fetch(`/api/spx-prices?days=${days}`);
+                const data = await response.json();
+                return data.prices || [];
+            } catch (error) {
+                console.error('Error fetching SPX prices:', error);
+                return [];
+            }
+        }
         
         /**
          * Load and display trend analysis
@@ -297,16 +403,131 @@
                 
                 console.log(`Displaying ${validHistory.length} days of historical data`);
                 
+                // Fetch SPX prices
+                const spxPrices = await fetchSPXPrices(days * 2); // Fetch extra to ensure coverage
+                
+                // Align dates: only show dates that exist in both SPX and history data
+                const spxDates = new Set(spxPrices.map(p => p.date));
+                const historyDates = new Set(validHistory.map(h => h.date));
+                const commonDates = [...spxDates].filter(d => historyDates.has(d)).sort();
+                
+                console.log('SPX dates:', spxDates.size);
+                console.log('History dates:', historyDates.size);
+                console.log('Common dates:', commonDates.length);
+                
+                // Filter data to only include common dates
+                const alignedSPX = spxPrices.filter(p => commonDates.includes(p.date)).sort((a, b) => a.date.localeCompare(b.date));
+                const alignedHistory = validHistory.filter(h => commonDates.includes(h.date)).sort((a, b) => a.date.localeCompare(b.date));
+                
+                // Render SPX Trend
+                if (alignedSPX.length > 0) {
+                    renderSPXTrend(alignedSPX, days);
+                }
+                
                 // Render Gamma Domain Trends
-                renderGammaDomainTrends(validHistory);
+                renderGammaDomainTrends(alignedHistory);
                 
                 // Render Fragility Trend
-                renderFragilityTrend(validHistory);
+                renderFragilityTrend(alignedHistory);
                 
             } catch (error) {
                 console.error('Failed to load trend analysis:', error);
                 showError();
             }
+        }
+        
+        /**
+         * Render S&P 500 Price Trend
+         */
+        function renderSPXTrend(spxData, days) {
+            const container = document.getElementById('spxChartContainer');
+            const chartArea = document.getElementById('spxChartArea');
+            const latestDateEl = document.getElementById('spxLatestDate');
+            const timeRangeEl = document.getElementById('spxTimeRange');
+            
+            // Show container
+            container.style.display = 'block';
+            
+            // Update time range
+            timeRangeEl.textContent = `(Last ${days} Days)`;
+            
+            // Calculate Y-axis range (500-point range centered on data)
+            const prices = spxData.map(d => d.price);
+            const maxPrice = Math.max(...prices);
+            const minPrice = Math.min(...prices);
+            const midPrice = (maxPrice + minPrice) / 2;
+            const yMax = Math.ceil(midPrice + 250);
+            const yMin = Math.floor(midPrice - 250);
+            const yRange = yMax - yMin;
+            
+            // Y-axis labels (5 levels)
+            const yLabels = [];
+            for (let i = 0; i <= 4; i++) {
+                yLabels.push(Math.round(yMin + (yRange * i / 4)));
+            }
+            yLabels.reverse();
+            
+            // Build chart HTML
+            let html = '<div class="spx-chart-area">';
+            
+            // Y-axis
+            html += '<div class="y-axis">';
+            yLabels.forEach(label => {
+                html += `<div class="y-axis-label">${label}</div>`;
+            });
+            html += '</div>';
+            
+            // Chart area
+            html += '<div class="chart-area">';
+            
+            // Grid lines
+            for (let i = 0; i <= 4; i++) {
+                const top = (i * 25) + '%';
+                html += `<div class="grid-line" style="top: ${top}"></div>`;
+            }
+            
+            // Data points
+            html += '<div class="spx-data-points">';
+            spxData.forEach(point => {
+                const yPercent = ((yMax - point.price) / yRange) * 100;
+                const formattedDate = new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                html += `<div class="spx-data-point-container">`;
+                html += `<span class="spx-data-point" style="top: ${yPercent}%" data-date="${formattedDate}" data-price="$${point.price.toFixed(2)}">🔵</span>`;
+                html += `</div>`;
+            });
+            html += '</div>';
+            
+            html += '</div>';
+            html += '</div>';
+            
+            chartArea.innerHTML = html;
+            
+            // Update latest date
+            const latestData = spxData[spxData.length - 1];
+            const latestDate = new Date(latestData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            latestDateEl.textContent = `Latest: ${latestDate} - $${latestData.price.toFixed(2)}`;
+            
+            // Add tooltip event listeners
+            const dataPoints = chartArea.querySelectorAll('.spx-data-point');
+            const tooltip = document.getElementById('customTooltip');
+            
+            dataPoints.forEach(point => {
+                point.addEventListener('mouseenter', (e) => {
+                    const date = e.target.dataset.date;
+                    const price = e.target.dataset.price;
+                    tooltip.textContent = `${date}: ${price}`;
+                    tooltip.classList.add('show');
+                });
+                
+                point.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY - 30) + 'px';
+                });
+                
+                point.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('show');
+                });
+            });
         }
         
         /**
@@ -359,20 +580,10 @@
             
             container.innerHTML = html;
             
-            // Display latest date for Gamma chart
-            if (history.length > 0) {
-                // history is ordered newest to oldest, so first element is latest
-                const latestSnapshot = history[0];
-                const latestDate = latestSnapshot.date || latestSnapshot.createdAt;
-                const dateDisplay = document.getElementById('gammaLatestDate');
-                if (dateDisplay && latestDate) {
-                    const formattedDate = new Date(latestDate).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                    });
-                    dateDisplay.textContent = `Latest: ${formattedDate}`;
-                }
+            // Hide latest date display for Gamma chart
+            const dateDisplay = document.getElementById('gammaLatestDate');
+            if (dateDisplay) {
+                dateDisplay.style.display = 'none';
             }
         }
         
@@ -439,20 +650,10 @@
             
             container.innerHTML = html;
             
-            // Display latest date for Fragility chart
-            if (history.length > 0) {
-                // history is ordered newest to oldest, so first element is latest
-                const latestSnapshot = history[0];
-                const latestDate = latestSnapshot.date || latestSnapshot.createdAt;
-                const dateDisplay = document.getElementById('fragilityLatestDate');
-                if (dateDisplay && latestDate) {
-                    const formattedDate = new Date(latestDate).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                    });
-                    dateDisplay.textContent = `Latest: ${formattedDate}`;
-                }
+            // Hide latest date display for Fragility chart
+            const dateDisplay = document.getElementById('fragilityLatestDate');
+            if (dateDisplay) {
+                dateDisplay.style.display = 'none';
             }
         }
         
@@ -460,6 +661,7 @@
          * Show no data message
          */
         function showNoData() {
+            document.getElementById('spxChartContainer').style.display = 'none';
             document.getElementById('gammaTrendsContainer').innerHTML = 
                 '<div class="no-data">No historical data available</div>';
             document.getElementById('fragilityTrendContainer').innerHTML = 
@@ -471,6 +673,7 @@
          */
         function showError() {
             const errorHtml = '<div class="no-data">Failed to load data. Please try again later.</div>';
+            document.getElementById('spxChartContainer').style.display = 'none';
             document.getElementById('gammaTrendsContainer').innerHTML = errorHtml;
             document.getElementById('fragilityTrendContainer').innerHTML = errorHtml;
         }
