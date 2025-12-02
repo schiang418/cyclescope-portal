@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Market Pulse - CycleScope</title>
+    <link rel="stylesheet" href="css/style.css?v=20251202v2">
+    <link rel="stylesheet" href="css/daily-pulse.css?v=20251202-3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <img src="images/cyclescope-logo.svg" alt="CycleScope" class="logo-pulse" style="width: 28px; height: 28px;">
+                <span>CycleScope - Market Cycle Navigator</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="trends.html">📊 Trends</a></li>
+                <li><a href="domain-analysis.html">🔍 Domain Analysis</a></li>
+                <li><a href="daily-pulse.html" class="active">📰 Daily Pulse</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <h1>📰 Daily Market Pulse</h1>
+            </div>
+            <p class="page-subtitle">Daily market analysis with audio narration</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading today's market pulse...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <div class="error-icon">⚠️</div>
+            <h3>Unable to load newsletter</h3>
+            <p id="errorMessage">Please try again later</p>
+            <button onclick="location.reload()" class="retry-button">Retry</button>
+        </div>
+
+        <!-- Newsletter Content -->
+        <div id="newsletterContent" style="display: none;">
+            <!-- Header Card -->
+            <div class="card pulse-header-card">
+                <div class="card-content">
+                    <div class="header-top-row">
+                        <div class="pulse-date" id="pulseDate">December 2, 2025</div>
+                        <div class="audio-controls-inline">
+                            <audio id="audioElement" preload="metadata"></audio>
+                            <button id="playPauseBtn" class="play-btn-inline" aria-label="Play">
+                                <span class="play-icon">▶</span>
+                                <span class="pause-icon" style="display: none;">⏸</span>
+                            </button>
+                            <span class="time-display-inline">
+                                <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                            </span>
+                            <a id="downloadWav" class="btn-download-inline" download>
+                                🎧 Download Audio
+                            </a>
+                            <a id="downloadText" class="btn-download-inline" download>
+                                📄 Download Text
+                            </a>
+                        </div>
+                    </div>
+                    <h2 class="pulse-title" id="pulseTitle">Market Analysis Loading...</h2>
+                    <p class="pulse-hook" id="pulseHook"></p>
+                </div>
+            </div>
+
+            <!-- Newsletter Body Card -->
+            <div class="card newsletter-body-card">
+                <div class="card-content">
+                    <!-- Sections -->
+                    <div id="newsletterSections"></div>
+
+                    <!-- Conclusion -->
+                    <div class="newsletter-section conclusion-section">
+                        <h3>Looking Ahead</h3>
+                        <p id="conclusionText"></p>
+                    </div>
+
+                    <!-- Sources -->
+                    <div class="sources-section" id="sourcesSection">
+                        <h3>📚 Sources</h3>
+                        <p class="sources-intro">This analysis is based on real-time data from the following sources:</p>
+                        <div id="sourcesList" class="sources-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historical Archive -->
+            <div class="card archive-card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Historical Archive</h2>
+                    <p class="archive-subtitle">Past newsletters (last 365 days)</p>
+                </div>
+                <div class="card-content">
+                    <div id="archiveList" class="archive-list">
+                        <div class="archive-loading">Loading archive...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/daily-pulse.js?v=20251202-5"></script>
+</body>
+</html>
