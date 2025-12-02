@@ -20,11 +20,21 @@ app.get('/api/config', (req, res) => {
 // S&P 500 prices endpoint
 app.get('/api/spx-prices', (req, res) => {
   const days = req.query.days || 30;
-  const scriptPath = path.join(__dirname, 'fetch_spx_data.py');
   
-  exec(`python3 ${scriptPath} ${days}`, (error, stdout, stderr) => {
+  // Use Node.js HTTP version for Railway compatibility (no Python dependencies)
+  // Falls back to Python version if Manus API is available
+  const httpScriptPath = path.join(__dirname, 'fetch_spx_data_http.js');
+  const pythonScriptPath = path.join(__dirname, 'fetch_spx_data.py');
+  
+  // Prefer Node.js version for Railway, Python version for Manus sandbox
+  const useNodeScript = !fs.existsSync('/opt/.manus/.sandbox-runtime');
+  const scriptPath = useNodeScript ? httpScriptPath : pythonScriptPath;
+  const command = useNodeScript ? `node ${scriptPath} ${days}` : `python3 ${scriptPath} ${days}`;
+  
+  exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error('Error fetching SPX data:', error);
+      console.error('stderr:', stderr);
       return res.status(500).json({ error: 'Failed to fetch SPX data' });
     }
     
@@ -33,6 +43,7 @@ app.get('/api/spx-prices', (req, res) => {
       res.json(data);
     } catch (e) {
       console.error('Error parsing SPX data:', e);
+      console.error('stdout:', stdout);
       res.status(500).json({ error: 'Failed to parse SPX data' });
     }
   });
