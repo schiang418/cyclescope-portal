@@ -221,19 +221,124 @@ function displayArchive(newsletters) {
         return;
     }
 
+    // Group newsletters by month and week
+    const grouped = groupByMonthAndWeek(newsletters);
+    
     archiveList.innerHTML = '';
 
-    newsletters.forEach(newsletter => {
-        const date = new Date(newsletter.publishDate);
-        const archiveItem = document.createElement('div');
-        archiveItem.className = 'archive-item';
-        archiveItem.innerHTML = `
-            <div class="archive-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-            <div class="archive-title">${newsletter.title}</div>
-            <button class="archive-view-btn" onclick="loadNewsletterByDate('${newsletter.publish_date || newsletter.publishDate}')">View</button>
+    // Render each month
+    Object.keys(grouped).forEach((monthKey, index) => {
+        const monthData = grouped[monthKey];
+        const monthDiv = document.createElement('div');
+        monthDiv.className = 'archive-month';
+        if (index > 0) monthDiv.classList.add('collapsed'); // Collapse all except current month
+        
+        // Month header
+        const monthHeader = document.createElement('div');
+        monthHeader.className = 'archive-month-header';
+        monthHeader.innerHTML = `
+            <span class="archive-month-icon">▼</span>
+            <span class="archive-month-title">${monthData.label}</span>
+            <span class="archive-month-count">${monthData.count}</span>
         `;
-        archiveList.appendChild(archiveItem);
+        monthHeader.onclick = () => monthDiv.classList.toggle('collapsed');
+        monthDiv.appendChild(monthHeader);
+        
+        // Weeks container
+        const weeksDiv = document.createElement('div');
+        weeksDiv.className = 'archive-weeks';
+        
+        // Render each week
+        Object.keys(monthData.weeks).forEach(weekKey => {
+            const weekData = monthData.weeks[weekKey];
+            const weekDiv = document.createElement('div');
+            weekDiv.className = 'archive-week';
+            
+            // Week header
+            const weekHeader = document.createElement('div');
+            weekHeader.className = 'archive-week-header';
+            weekHeader.textContent = weekData.label;
+            weekDiv.appendChild(weekHeader);
+            
+            // Week items
+            const weekItems = document.createElement('div');
+            weekItems.className = 'archive-week-items';
+            
+            weekData.newsletters.forEach(newsletter => {
+                const date = new Date(newsletter.publishDate || newsletter.publish_date);
+                const archiveItem = document.createElement('div');
+                archiveItem.className = 'archive-item';
+                archiveItem.innerHTML = `
+                    <div class="archive-weekday">${date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                    <div class="archive-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                    <div class="archive-title">${newsletter.title}</div>
+                    <button class="archive-view-btn" onclick="loadNewsletterByDate('${newsletter.publish_date || newsletter.publishDate}')">View</button>
+                `;
+                weekItems.appendChild(archiveItem);
+            });
+            
+            weekDiv.appendChild(weekItems);
+            weeksDiv.appendChild(weekDiv);
+        });
+        
+        monthDiv.appendChild(weeksDiv);
+        archiveList.appendChild(monthDiv);
     });
+}
+
+// Group newsletters by month and week
+function groupByMonthAndWeek(newsletters) {
+    const grouped = {};
+    
+    newsletters.forEach(newsletter => {
+        const date = new Date(newsletter.publishDate || newsletter.publish_date);
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        
+        // Month key: YYYY-MM
+        const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+        
+        // Get week of month (1-5)
+        const dayOfMonth = date.getDate();
+        const weekOfMonth = Math.ceil(dayOfMonth / 7);
+        const weekKey = `week-${weekOfMonth}`;
+        
+        // Initialize month if not exists
+        if (!grouped[monthKey]) {
+            grouped[monthKey] = {
+                label: date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
+                count: 0,
+                weeks: {}
+            };
+        }
+        
+        // Initialize week if not exists
+        if (!grouped[monthKey].weeks[weekKey]) {
+            const weekStart = new Date(year, month, (weekOfMonth - 1) * 7 + 1);
+            const weekEnd = new Date(year, month, Math.min(weekOfMonth * 7, new Date(year, month + 1, 0).getDate()));
+            grouped[monthKey].weeks[weekKey] = {
+                label: `Week ${weekOfMonth} (${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`,
+                newsletters: []
+            };
+        }
+        
+        // Add newsletter to week
+        grouped[monthKey].weeks[weekKey].newsletters.push(newsletter);
+        grouped[monthKey].count++;
+    });
+    
+    // Sort newsletters within each week by date (newest first)
+    Object.values(grouped).forEach(monthData => {
+        Object.values(monthData.weeks).forEach(weekData => {
+            weekData.newsletters.sort((a, b) => {
+                const dateA = new Date(a.publishDate || a.publish_date);
+                const dateB = new Date(b.publishDate || b.publish_date);
+                return dateB - dateA;
+            });
+        });
+    });
+    
+    return grouped;
 }
 
 // Load Newsletter by Date
