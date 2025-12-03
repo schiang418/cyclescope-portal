@@ -21,17 +21,35 @@ app.get('/api/config', (req, res) => {
 app.get('/api/spx-prices', (req, res) => {
   const days = req.query.days || 30;
   
-  // Use Node.js HTTP version for Railway compatibility (no Python dependencies)
-  // Falls back to Python version if Manus API is available
+  // Use hybrid fetcher that combines Yahoo Finance + Gemini verification
+  // - Historical data: Yahoo Finance (fast)
+  // - Latest date: Gemini + Google Search (verified)
+  const hybridScriptPath = path.join(__dirname, 'fetch_spx_data_hybrid.py');
   const httpScriptPath = path.join(__dirname, 'fetch_spx_data_http.js');
-  const pythonScriptPath = path.join(__dirname, 'fetch_spx_data.py');
   
-  // Prefer Node.js version for Railway, Python version for Manus sandbox
-  const useNodeScript = !fs.existsSync('/opt/.manus/.sandbox-runtime');
-  const scriptPath = useNodeScript ? httpScriptPath : pythonScriptPath;
-  const command = useNodeScript ? `node ${scriptPath} ${days}` : `python3 ${scriptPath} ${days}`;
+  // Prefer hybrid Python version for Manus sandbox, Node.js version for Railway
+  const useHybridScript = fs.existsSync('/opt/.manus/.sandbox-runtime') && fs.existsSync(hybridScriptPath);
+  const scriptPath = useHybridScript ? hybridScriptPath : httpScriptPath;
+  const command = useHybridScript ? `python3 ${scriptPath} ${days}` : `node ${scriptPath} ${days}`;
   
-  exec(command, (error, stdout, stderr) => {
+  // Pass environment variables to child process
+  const env = { ...process.env };
+  if (useHybridScript && process.env.GEMINI_API_KEY) {
+    env.GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    console.log(`Using hybrid script with Gemini verification`);
+  } else {
+    console.log(`Using ${useHybridScript ? 'hybrid' : 'HTTP'} script without Gemini`);
+  }
+  
+  console.log(`Executing: ${command}`);
+  console.log(`GEMINI_API_KEY set: ${!!env.GEMINI_API_KEY}`);
+  
+  exec(command, { env }, (error, stdout, stderr) => {
+    // Log stderr even if no error (for debugging)
+    if (stderr) {
+      console.log('Script stderr:', stderr);
+    }
+    
     if (error) {
       console.error('Error fetching SPX data:', error);
       console.error('stderr:', stderr);
@@ -40,6 +58,7 @@ app.get('/api/spx-prices', (req, res) => {
     
     try {
       const data = JSON.parse(stdout);
+      console.log('SPX data fetched:', data.latest_verified ? 'VERIFIED' : 'not verified');
       res.json(data);
     } catch (e) {
       console.error('Error parsing SPX data:', e);
