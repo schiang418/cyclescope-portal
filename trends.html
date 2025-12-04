@@ -533,7 +533,7 @@
                 point.addEventListener('mouseenter', (e) => {
                     const date = e.target.dataset.date;
                     const price = e.target.dataset.price;
-                    tooltip.textContent = `${date}: ${price}`;
+                    tooltip.innerHTML = `${date}<br>${price}`;
                     tooltip.classList.add('show');
                 });
                 
