@@ -247,6 +247,50 @@
             font-size: 0.75rem; /* 12px for 90 days */
         }
 
+        /* Delta V2 Markers */
+        .delta-marker {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 10;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translateX(-50%) scale(1.1);
+            }
+        }
+        
+        .marker-bottom {
+            color: #10b981;
+            text-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+        }
+        
+        .marker-top {
+            color: #ef4444;
+            text-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+        }
+        
+        /* Responsive marker sizes */
+        .size-60 ~ .delta-marker {
+            font-size: 1.25rem;
+            bottom: -35px;
+        }
+        
+        .size-90 ~ .delta-marker {
+            font-size: 1rem;
+            bottom: -30px;
+        }
+
         /* Custom Tooltip */
         .custom-tooltip {
             position: fixed;
@@ -431,9 +475,9 @@
                 const alignedSPX = spxPrices.filter(p => commonDates.includes(p.date)).sort((a, b) => a.date.localeCompare(b.date));
                 const alignedHistory = validHistory.filter(h => commonDates.includes(h.date)).sort((a, b) => a.date.localeCompare(b.date));
                 
-                // Render SPX Trend
+                // Render SPX Trend with Delta V2 markers
                 if (alignedSPX.length > 0) {
-                    renderSPXTrend(alignedSPX, days);
+                    renderSPXTrend(alignedSPX, alignedHistory, days);
                 }
                 
                 // Render Gamma Domain Trends
@@ -449,9 +493,12 @@
         }
         
         /**
-         * Render S&P 500 Price Trend
+         * Render S&P 500 Price Trend with Delta V2 Turning Point Markers
+         * @param {Array} spxData - S&P 500 price data
+         * @param {Array} historyData - Historical snapshots with deltaV2 data
+         * @param {number} days - Number of days displayed
          */
-        function renderSPXTrend(spxData, days) {
+        function renderSPXTrend(spxData, historyData, days) {
             const container = document.getElementById('spxChartContainer');
             const chartArea = document.getElementById('spxChartArea');
             const latestDateEl = document.getElementById('spxLatestDate');
@@ -498,7 +545,15 @@
                 html += `<div class="grid-line" style="top: ${top}"></div>`;
             }
             
-            // Data points
+            // Create date-to-turning-point map from history data
+            const turningPointMap = new Map();
+            historyData.forEach(snapshot => {
+                if (snapshot.deltaV2 && snapshot.deltaV2.turningPoint) {
+                    turningPointMap.set(snapshot.date, snapshot.deltaV2.turningPoint);
+                }
+            });
+            
+            // Data points with Delta V2 markers
             html += '<div class="spx-data-points">';
             spxData.forEach(point => {
                 const yPercent = ((yMax - point.price) / yRange) * 100;
@@ -509,8 +564,25 @@
                 if (currentDays === 60) sizeClass = 'size-60';
                 else if (currentDays === 90) sizeClass = 'size-90';
                 
+                // Check for Delta V2 turning point
+                const turningPoint = turningPointMap.get(point.date);
+                let marker = '';
+                let markerData = '';
+                
+                if (turningPoint) {
+                    const tpLower = turningPoint.toLowerCase();
+                    if (tpLower.includes('bottom')) {
+                        marker = '<div class="delta-marker marker-bottom" title="Bottom Forming Signal">▲</div>';
+                        markerData = ' data-signal="bottom"';
+                    } else if (tpLower.includes('top')) {
+                        marker = '<div class="delta-marker marker-top" title="Top Forming Signal">▼</div>';
+                        markerData = ' data-signal="top"';
+                    }
+                }
+                
                 html += `<div class="spx-data-point-container">`;
-                html += `<span class="spx-data-point ${sizeClass}" style="top: ${yPercent}%" data-date="${formattedDate}" data-price="$${point.price.toFixed(2)}">🔵</span>`;
+                html += `<span class="spx-data-point ${sizeClass}" style="top: ${yPercent}%" data-date="${formattedDate}" data-price="$${point.price.toFixed(2)}"${markerData}>🔵</span>`;
+                html += marker;
                 html += `</div>`;
             });
             html += '</div>';
@@ -533,7 +605,17 @@
                 point.addEventListener('mouseenter', (e) => {
                     const date = e.target.dataset.date;
                     const price = e.target.dataset.price;
-                    tooltip.innerHTML = `${date}<br>${price}`;
+                    const signal = e.target.dataset.signal;
+                    
+                    let tooltipContent = `${date}<br>${price}`;
+                    
+                    if (signal === 'bottom') {
+                        tooltipContent += '<br><span style="color: #10b981; font-weight: bold;">▲ Bottom Forming</span>';
+                    } else if (signal === 'top') {
+                        tooltipContent += '<br><span style="color: #ef4444; font-weight: bold;">▼ Top Forming</span>';
+                    }
+                    
+                    tooltip.innerHTML = tooltipContent;
                     tooltip.classList.add('show');
                 });
                 
