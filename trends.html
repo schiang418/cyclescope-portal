@@ -144,6 +144,7 @@
             cursor: pointer;
             transition: transform 0.2s;
             position: absolute;
+            transform: translateY(50%); /* Center the dot on its Y position */
         }
         
         /* Responsive sizes for Fragility chart */
@@ -156,7 +157,7 @@
         }
         
         .data-point:hover {
-            transform: scale(1.3);
+            transform: translateY(50%) scale(1.3); /* Maintain centering on hover */
         }
         
         .x-axis-label {
