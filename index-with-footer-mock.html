@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleScope - Market Cycle Navigator (Mock with Footer)</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-top: 4rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .footer p {
+            margin: 0.5rem 0;
+        }
+
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+
+        .mock-content {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .mock-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .mock-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .mock-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: rgba(var(--primary-color-rgb), 0.1);
+            border: 2px dashed var(--primary-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .highlight-box h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🔄</span>
+                <span class="logo-text">CycleScope - Market Cycle Navigator</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Dashboard</a>
+                <a href="trends.html" class="nav-link">📊 Trends</a>
+                <a href="domain-analysis.html" class="nav-link">🔍 Domain Analysis</a>
+                <a href="daily-pulse.html" class="nav-link">📰 Daily Pulse</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="mock-content">
+            <div class="mock-card">
+                <h2>📋 Footer Design Preview</h2>
+                <p>
+                    This is a mock page to show you how the footer will look at the bottom of each page.
+                </p>
+                <p style="margin-top: 1rem;">
+                    <strong>Scroll down to see the footer design!</strong>
+                </p>
+            </div>
+
+            <div class="highlight-box">
+                <h3>✨ Key Features</h3>
+                <ul style="text-align: left; color: var(--text-secondary); line-height: 1.8;">
+                    <li><strong>Single "Legal" link</strong> - No clutter in navigation</li>
+                    <li><strong>All 3 sections in one page</strong> - Easy to maintain</li>
+                    <li><strong>Clean footer design</strong> - Professional and minimal</li>
+                    <li><strong>Quick navigation</strong> - Jump to any section with anchor links</li>
+                </ul>
+            </div>
+
+            <div class="mock-card">
+                <h2>🎯 What You'll See Below</h2>
+                <p>
+                    The footer contains:
+                </p>
+                <ul style="text-align: left; color: var(--text-secondary); line-height: 1.8; margin-top: 1rem;">
+                    <li>Copyright notice</li>
+                    <li>Single "Legal Information" link</li>
+                    <li>Clean, minimal design</li>
+                    <li>Matches existing CycleScope style</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Existing disclaimer (before footer) -->
+        <div style="margin-top: 3rem; padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6; opacity: 0.8;">
+            All information provided on this website is for educational and research purposes only and does not constitute financial, investment, or trading advice. Please consult a qualified financial advisor before making any investment decisions.
+        </div>
+    </div>
+
+    <!-- NEW: Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 CycleScope. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="legal.html">Legal Information</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
