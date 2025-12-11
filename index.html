@@ -130,6 +130,10 @@
                 <li><a href="domain-analysis.html">🔍 Domain Analysis</a></li>
                 <li><a href="daily-pulse.html">📰 Daily Pulse</a></li>
             </ul>
+            <div class="nav-auth-buttons">
+                <button id="signInBtn" class="btn-outline">Sign In</button>
+                <a href="https://www.patreon.com/c/u61112624" target="_blank" class="btn-primary">Subscribe</a>
+            </div>
         </div>
     </nav>
 
@@ -747,6 +751,76 @@
                 deltaV2Layer = 1;
             }
         }
+    </script>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <div class="modal-header">
+                <img src="images/cyclescope-logo.svg" alt="CycleScope" style="width: 48px; height: 48px; margin-bottom: 1rem;">
+                <h2>Access Institutional-Grade Market Intelligence</h2>
+                <p class="modal-subtitle">Professional market cycle analysis delivered daily and weekly</p>
+            </div>
+            <div class="modal-body">
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Daily Market Newsletter</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Weekly Comprehensive Analysis</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Three-Layer Framework (Fusion, Gamma, Delta)</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Six-Domain Cycle Analysis</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Market Turning Point Insights</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Fragility & Risk Monitoring</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="check-icon">✓</span>
+                        <span>Historical Archive Access</span>
+                    </div>
+                </div>
+                <div class="modal-cta">
+                    <a href="https://cyclescope-member-portal-production.up.railway.app/signin" class="btn-modal-primary">Access Member Portal</a>
+                    <p class="modal-footer-text">Not a member yet? <a href="https://www.patreon.com/c/u61112624" target="_blank" class="link-accent">Subscribe on Patreon</a></p>
+                    <p class="modal-price">Starting at SGD 53/month • 7-day free trial available</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById('loginModal');
+        const signInBtn = document.getElementById('signInBtn');
+        const closeModal = document.getElementById('closeModal');
+
+        signInBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
